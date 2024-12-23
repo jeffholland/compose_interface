@@ -1,6 +1,7 @@
 import tkinter as tk
 from constants import *
 from note import Note
+from print import print_notes
 
 class Application(tk.Frame):
     def __init__(self, master=None):
@@ -52,18 +53,47 @@ class Application(tk.Frame):
         self.th_entry.grid(row=5, column=1, padx=10)
 
 
+        # Canvas
+
+        self.note_canvas = tk.Canvas(self, bg=CANVAS_BG, width=CANV_WIDTH, height=CANV_HEIGHT)
+        self.note_canvas.grid(row=2, column=2, rowspan=7, columnspan=18)
+        self.note_canvas.bind('<Button-1>', self.left_click_canvas)
+        self.note_canvas.bind('<Button-2>', self.right_click_canvas)
+
+
         # Right side
 
+        self.voices_label = tk.Label(self, text="Voices", bg=W_BG, width=12)
+        self.voices_label.grid(row=0, column=21, columnspan=2)
+
+        self.voices_list = tk.StringVar()
+        self.voices_listbox = tk.Listbox(self, width=10, height=30, listvariable=self.voices_list, bg=NOTE_COLOR)
+        self.voices_list.set('sn1 sq1 vdn1')
+        self.voices_listbox.grid(row=1, column=21, rowspan=7, columnspan=2)
+
+        self.btn_add_voice = tk.Button(self, text='+', width=1, highlightbackground=W_BG)
+        self.btn_add_voice.grid(row=9, column=21)
+        self.btn_rm_voice = tk.Button(self, text='-', width=1, highlightbackground=W_BG)
+        self.btn_rm_voice.grid(row=9, column=22)
+
         self.vars_label = tk.Label(self, text="Vars", bg=W_BG, width=12)
-        self.vars_label.grid(row=0, column=27, columnspan=2)
+        self.vars_label.grid(row=0, column=23, columnspan=2)
 
         self.vars_list = tk.StringVar()
-        self.vars_listbox = tk.Listbox(self, width=10, height=30, listvariable=self.vars_list, bg=W_BG)
+        self.vars_listbox = tk.Listbox(self, width=10, height=30, listvariable=self.vars_list, bg=NOTE_COLOR)
         self.vars_list.set('a b c')
-        self.vars_listbox.grid(row=1, column=27, rowspan=7, columnspan=2)
+        self.vars_listbox.grid(row=1, column=23, rowspan=7, columnspan=2)
+
+        self.btn_add_var = tk.Button(self, text='+', width=1, highlightbackground=W_BG)
+        self.btn_add_var.grid(row=9, column=23)
+        self.btn_rm_var = tk.Button(self, text='-', width=1, highlightbackground=W_BG)
+        self.btn_rm_var.grid(row=9, column=24)
 
 
         # Bottom
+
+        self.print_button = tk.Button(self, text="print", highlightbackground=W_BG, command=self.print)
+        self.print_button.grid(row=9, column=0, columnspan=2)
 
         self.st_label = tk.Label(self, text="st", bg=W_BG)
         self.st_label.grid(row=9, column=3)
@@ -85,16 +115,6 @@ class Application(tk.Frame):
         self.ln_var = tk.StringVar()
         self.ln_entry = tk.Entry(self, width=2, bg=W_BG, textvariable=self.ln_var)
         self.ln_entry.grid(row=9, column=8, pady=10)
-
-
-
-
-        # Canvas
-
-        self.note_canvas = tk.Canvas(self, bg=CANVAS_BG, width=CANV_WIDTH, height=CANV_HEIGHT)
-        self.note_canvas.grid(row=2, column=2, rowspan=7, columnspan=24)
-        self.note_canvas.bind('<Button-1>', self.left_click_canvas)
-        self.note_canvas.bind('<Button-2>', self.right_click_canvas)
 
     def left_click_canvas(self, event):
         id = self.note_canvas.create_line(
@@ -134,6 +154,9 @@ class Application(tk.Frame):
                 self.select_note(self.notes[note].id)
                 return
         self.deselect_all_notes()
+
+    def print(self):
+        print_notes(self.notes)
 
 
 app = Application()
