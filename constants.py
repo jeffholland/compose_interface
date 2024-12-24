@@ -11,6 +11,9 @@ W_BG = '#94BFA7'
 CANVAS_BG = "#E0B7B7"
 NOTE_COLOR = "#2F2F2F"
 
+# note movement
+MOVE_AMOUNT = 5
+
 # we'll fix these values for now but they will become variable later
 
 TIME_LENGTH = 10

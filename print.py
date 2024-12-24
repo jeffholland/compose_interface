@@ -1,43 +1,55 @@
-def print_notes(notes):
-    result = ""
-    notes_sorted_list = []
+from sys import argv
 
-    o_v = 'o1'
-    a_v = 'a1'
+def print_notes(notes):
+    # expects a dict of {id, note obj}
+    if not isinstance(notes, dict):
+        raise TypeError("passed non-dict to print_notes in print.py")
+
+    result = ""
+    nl = []         # notes list, sorted by start time (objects only)
+
+    o_v = 'o1'      # oscillator voice (fixed to 1 for now)
+    a_v = 'a1'      # amplifier voice
+
+
 
     # Sort notes by start time
     
     for note_a in notes:
         inserted = False
-        for i in range(len(notes_sorted_list)):
-            if notes[note_a].start_time < notes_sorted_list[i].start_time:
-                notes_sorted_list.insert(i, notes[note_a])
+        for i in range(len(nl)):
+            if notes[note_a].start_time < nl[i].start_time:
+                nl.insert(i, notes[note_a])
                 inserted = True
                 break
         if not inserted:
-            notes_sorted_list.append(notes[note_a])
+            nl.append(notes[note_a])
 
-    # Write notes to result string
 
-    cursor = notes_sorted_list[0].start_time
+    # Write notes to string
+
+    cursor = nl[0].start_time
     result += f"/ {cursor},\n"
-    for i in range(len(notes_sorted_list)):
+    for i in range(len(nl)):
         # Write note attack
-        result += f"{o_v} {notes_sorted_list[i].pitch},\n"
-        result += f"{a_v} {notes_sorted_list[i].peak} {notes_sorted_list[i].attack},\n"
+        result += f"{o_v} {nl[i].pitch},\n"
+        result += f"{a_v} {nl[i].peak} {nl[i].attack},\n"
 
         # Advance cursor
-        cursor += notes_sorted_list[i].length
-        result += f"/ {notes_sorted_list[i].length},\n"
-        result += f"{a_v} 0 {notes_sorted_list[i].decay},\n"
-        result += f"/ {notes_sorted_list[i].decay},\n"
+        cursor += nl[i].length
+        result += f"/ {nl[i].length},\n"
+        result += f"{a_v} 0 {nl[i].decay},\n"
+        result += f"/ {nl[i].decay},\n"
 
-        if i + 1 < len(notes_sorted_list):
-            result += f"/ {notes_sorted_list[i + 1].start_time - cursor},\n"
-            cursor = notes_sorted_list[i + 1].start_time
+        if i + 1 < len(nl) and nl[i + 1].start_time > cursor:
+            result += f"/ {nl[i + 1].start_time - cursor},\n"
+            cursor = nl[i + 1].start_time
 
 
-    # Write to file
+    # Write result to file
+    outfilename = "result.txt"
+    if '--mv' in argv:
+        outfilename = "/Users/jeffholland/Documents/Pd/compose/read/" + outfilename
 
-    with open("/Users/jeffholland/Documents/Pd/compose/read/result.txt", "w") as f:
+    with open(outfilename, "w") as f:
         f.write(result)
