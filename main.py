@@ -235,26 +235,55 @@ class Application(tk.Frame):
     def bind_keys(self):
         self.bind_all('<Key-BackSpace>', self.delete_selected_note)
         self.bind_all('<Key-Return>', self.print)
-        self.bind_all('<Left>', self.move_selected_note)
-        self.bind_all('<Right>', self.move_selected_note)
-        self.bind_all('<Up>', self.move_selected_note)
-        self.bind_all('<Down>', self.move_selected_note)
+        self.bind_all('<Left>', self.arrow_key_pressed)
+        self.bind_all('<Right>', self.arrow_key_pressed)
+        self.bind_all('<Up>', self.arrow_key_pressed)
+        self.bind_all('<Down>', self.arrow_key_pressed)
 
     def delete_selected_note(self, event=None):
         self.note_canvas.delete(self.selected_note.id)
         self.notes.pop(self.selected_note.id)
         self.selected_note = None
 
-    def move_selected_note(self, event=None):
+    def arrow_key_pressed(self, event):
+
+        # no modifier keys - move selected note
+        if event.state == 96:
+            self.move_selected_note(event.keysym)
+
+        # shift key held with left/right - resize selected note
+        elif event.state == 97 and (event.keysym == 'Left' or event.keysym == 'Right'):
+            self.resize_selected_note(event.keysym)
+
+        # shift key held with up/down - tilt selected note
+        elif event.state == 97 and (event.keysym == 'Up' or event.keysym == 'Down'):
+            self.tilt_selected_note(event.keysym)
+
+    def resize_selected_note(self, direction):
+        if direction == 'Left':
+            if self.selected_note.length < 5:
+                self.selected_note.resize(self.selected_note.length / 2)
+            else:
+                self.selected_note.resize(self.selected_note.length - RESIZE_AMOUNT)
+        elif direction == 'Right':
+            self.selected_note.resize(self.selected_note.length + RESIZE_AMOUNT)
+
+    def tilt_selected_note(self, direction):
+        if direction == 'Up':
+            self.selected_note.tilt(self.selected_note.theta + TILT_AMOUNT)
+        elif direction == 'Down':
+            self.selected_note.tilt(self.selected_note.theta - TILT_AMOUNT)
+
+    def move_selected_note(self, direction):
         xmove = 0
         ymove = 0
-        if event.keysym == 'Left':
+        if direction == 'Left':
             xmove = -(MOVE_AMOUNT)
-        if event.keysym == 'Right':
+        elif direction == 'Right':
             xmove = MOVE_AMOUNT
-        if event.keysym == 'Up':
+        elif direction == 'Up':
             ymove = -(MOVE_AMOUNT)
-        if event.keysym == 'Down':
+        elif direction == 'Down':
             ymove = MOVE_AMOUNT
         self.note_canvas.move(self.selected_note.id, xmove, ymove)
         self.selected_note.move(xmove, ymove)

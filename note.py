@@ -6,6 +6,7 @@ class Note:
         self.y = y
         self.id = id
         self.width = width
+        self.theta = 0
 
         self.start_time = (x / CANV_WIDTH) * TIME_LENGTH
         self.end_time = ((x + self.width)/ CANV_WIDTH) * TIME_LENGTH
@@ -33,3 +34,9 @@ class Note:
         self.start_time = (self.x / CANV_WIDTH) * TIME_LENGTH
         self.end_time = ((self.x + self.width)/ CANV_WIDTH) * TIME_LENGTH
         self.pitch = PITCH_RANGE - ((self.y / CANV_HEIGHT) * PITCH_RANGE)
+
+    def resize(self, new_size):
+        print(f"this note will be resized to {new_size}")
+
+    def tilt(self, new_angle):
+        print(f"this note will be tilted to {new_angle}")
