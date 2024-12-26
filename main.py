@@ -1,4 +1,6 @@
 import tkinter as tk
+import math
+
 from constants import *
 from note import Note
 from print import print_notes
@@ -173,18 +175,12 @@ class Application(tk.Frame):
         id = self.note_canvas.create_line(
             event.x, 
             event.y, 
-            event.x + NOTE_WIDTH, 
+            event.x + NOTE_SIZE, 
             event.y, 
             width=NOTE_HEIGHT, 
             fill=NOTE_COLOR)
 
         self.notes[id] = Note(event.x, event.y, id)
-
-        self.st_var.set(self.notes[id].start_time)
-        self.en_var.set(self.notes[id].end_time)
-        self.ln_var.set(self.notes[id].length)
-        self.p_var.set(self.notes[id].pitch)
-        self.set_fq_var()
 
         self.notes[id].set_params(
             {
@@ -222,7 +218,7 @@ class Application(tk.Frame):
         
     def right_click_canvas(self, event):
         for note in self.notes:
-            if (event.x >= self.notes[note].x and event.x <= self.notes[note].x + self.notes[note].width and
+            if (event.x >= self.notes[note].x and event.x <= self.notes[note].x + self.notes[note].size and
                 event.y >= self.notes[note].y and event.y <= self.notes[note].y + NOTE_HEIGHT):
                 self.select_note(self.notes[note].id)
                 return
@@ -246,7 +242,6 @@ class Application(tk.Frame):
         self.selected_note = None
 
     def arrow_key_pressed(self, event):
-
         # no modifier keys - move selected note
         if event.state == 96:
             self.move_selected_note(event.keysym)
@@ -258,21 +253,6 @@ class Application(tk.Frame):
         # shift key held with up/down - tilt selected note
         elif event.state == 97 and (event.keysym == 'Up' or event.keysym == 'Down'):
             self.tilt_selected_note(event.keysym)
-
-    def resize_selected_note(self, direction):
-        if direction == 'Left':
-            if self.selected_note.length < 5:
-                self.selected_note.resize(self.selected_note.length / 2)
-            else:
-                self.selected_note.resize(self.selected_note.length - RESIZE_AMOUNT)
-        elif direction == 'Right':
-            self.selected_note.resize(self.selected_note.length + RESIZE_AMOUNT)
-
-    def tilt_selected_note(self, direction):
-        if direction == 'Up':
-            self.selected_note.tilt(self.selected_note.theta + TILT_AMOUNT)
-        elif direction == 'Down':
-            self.selected_note.tilt(self.selected_note.theta - TILT_AMOUNT)
 
     def move_selected_note(self, direction):
         xmove = 0
@@ -289,6 +269,39 @@ class Application(tk.Frame):
         self.selected_note.move(xmove, ymove)
         self.select_note(self.selected_note.id)
 
+    def resize_selected_note(self, direction):
+        new_size = self.selected_note.size
+        scale_amt = 1.0
+
+        if direction == 'Left':
+            if self.selected_note.size < RESIZE_AMOUNT:
+                new_size = self.selected_note.size / 2
+                scale_amt = 0.5
+            else:
+                try:
+                    scale_amt = new_size / self.selected_note.size
+                except ZeroDivisionError:
+                    scale_amt = RESIZE_AMOUNT
+        elif direction == 'Right':
+            new_size = self.selected_note.size + RESIZE_AMOUNT
+            try:
+                scale_amt = new_size / self.selected_note.size
+            except ZeroDivisionError:
+                scale_amt = RESIZE_AMOUNT
+
+        self.selected_note.resize(new_size)
+        self.note_canvas.scale(self.selected_note.id, self.selected_note.x, self.selected_note.y, scale_amt, 1.0)
+        self.select_note(self.selected_note.id)
+
+    def tilt_selected_note(self, direction):
+        if direction == 'Up':
+            angle_degrees = self.selected_note.theta - TILT_AMOUNT
+        elif direction == 'Down':
+            angle_degrees = self.selected_note.theta + TILT_AMOUNT
+        
+        self.selected_note.tilt(angle_degrees)
+        self.note_canvas.coords(self.selected_note.id, self.selected_note.x, self.selected_note.y, self.selected_note.x2, self.selected_note.y2)
+        self.select_note(self.selected_note.id)
 
 app = Application()
 app.master.title("Compose interface")
