@@ -7,11 +7,8 @@ class Note:
         self.y = y
         self.id = id
         self.size = size
-
-        # rotation
-        self.theta = 0
-        self.x2 = self.x + self.size
-        self.y2 = self.y
+        self.x2 = x + size
+        self.y2 = y
 
         self.start_time = (x / CANV_WIDTH) * TIME_LENGTH
         self.end_time = ((x + self.size)/ CANV_WIDTH) * TIME_LENGTH
@@ -46,11 +43,8 @@ class Note:
         self.end_time = ((self.x + self.size)/ CANV_WIDTH) * TIME_LENGTH
         self.length = self.end_time - self.start_time
 
-    def tilt(self, new_angle):
-        self.theta = new_angle % 360
-        print(f"rotating to {self.theta}")
-        angle_radians = math.radians(self.theta)
-        self.x2, self.y2 = self.rotate_point(self.x, self.y, self.x2, self.y2, angle_radians)
+    def tilt(self, tilt_amount):
+        self.y2 += tilt_amount
 
     def rotate_point(self, x1, y1, x2, y2, angle_radians):
         dx, dy = x2 - x1, y2 - y1

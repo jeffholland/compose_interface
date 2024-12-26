@@ -271,35 +271,30 @@ class Application(tk.Frame):
 
     def resize_selected_note(self, direction):
         new_size = self.selected_note.size
-        scale_amt = 1.0
 
         if direction == 'Left':
             if self.selected_note.size < RESIZE_AMOUNT:
                 new_size = self.selected_note.size / 2
-                scale_amt = 0.5
             else:
-                try:
-                    scale_amt = new_size / self.selected_note.size
-                except ZeroDivisionError:
-                    scale_amt = RESIZE_AMOUNT
+                new_size = self.selected_note.size - RESIZE_AMOUNT
         elif direction == 'Right':
             new_size = self.selected_note.size + RESIZE_AMOUNT
-            try:
-                scale_amt = new_size / self.selected_note.size
-            except ZeroDivisionError:
-                scale_amt = RESIZE_AMOUNT
+        else:
+            return
 
         self.selected_note.resize(new_size)
-        self.note_canvas.scale(self.selected_note.id, self.selected_note.x, self.selected_note.y, scale_amt, 1.0)
+        self.note_canvas.coords(self.selected_note.id, 
+                                self.selected_note.x, self.selected_note.y, 
+                                self.selected_note.x2, self.selected_note.y2)
         self.select_note(self.selected_note.id)
 
     def tilt_selected_note(self, direction):
         if direction == 'Up':
-            angle_degrees = self.selected_note.theta - TILT_AMOUNT
+            tilt_amount = -(MOVE_AMOUNT)
         elif direction == 'Down':
-            angle_degrees = self.selected_note.theta + TILT_AMOUNT
+            tilt_amount = MOVE_AMOUNT
         
-        self.selected_note.tilt(angle_degrees)
+        self.selected_note.tilt(tilt_amount)
         self.note_canvas.coords(self.selected_note.id, self.selected_note.x, self.selected_note.y, self.selected_note.x2, self.selected_note.y2)
         self.select_note(self.selected_note.id)
 
