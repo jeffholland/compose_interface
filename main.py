@@ -67,13 +67,13 @@ class Application(tk.Frame):
         self.set_fq_var()
         self.fq_entry.grid(row=3, column=1, padx=10)
 
-        self.th_label = tk.Label(self, text="θ", bg=W_BG)
-        self.th_label.grid(row=4, column=0, padx=10)
+        self.p2_label = tk.Label(self, text="p2", bg=W_BG)
+        self.p2_label.grid(row=4, column=0, padx=10)
 
-        self.th_var = tk.StringVar()
-        self.th_entry = tk.Entry(self, text="0", width=3, bg=W_BG, textvariable=self.th_var)
-        self.th_var.set(0)
-        self.th_entry.grid(row=4, column=1, padx=10)
+        self.p2_var = tk.StringVar()
+        self.p2_entry = tk.Entry(self, width=3, bg=W_BG, textvariable=self.p2_var)
+        self.p2_var.set(0)
+        self.p2_entry.grid(row=4, column=1, padx=10)
 
 
         # Canvas
@@ -188,7 +188,7 @@ class Application(tk.Frame):
                 'f1': self.f1_var.get(),
                 'f2': self.f2_var.get(),
                 'f3': self.f3_var.get(),
-                'th': self.th_var.get(),
+                'p2': self.p2_var.get(),
                 'at': self.at_var.get(),
                 'pk': self.pk_var.get(),
                 'dc': self.dc_var.get()
@@ -214,6 +214,7 @@ class Application(tk.Frame):
         self.en_var.set(str(self.selected_note.end_time))
         self.ln_var.set(str(self.selected_note.length))
         self.p_var.set(str(self.selected_note.pitch))
+        self.p2_var.set(str(self.selected_note.pitch2))
         self.set_fq_var()
         
     def right_click_canvas(self, event):
@@ -251,10 +252,8 @@ class Application(tk.Frame):
             self.resize_selected_note(event.keysym)
 
         # shift key held with up/down - tilt selected note
-        # (removing this for now as it turned out to be more of a math challenge than I'd like to tackle right now)
-
-        # elif event.state == 97 and (event.keysym == 'Up' or event.keysym == 'Down'):
-        #     self.tilt_selected_note(event.keysym)
+        elif event.state == 97 and (event.keysym == 'Up' or event.keysym == 'Down'):
+            self.tilt_selected_note(event.keysym)
 
     def move_selected_note(self, direction):
         xmove = 0
