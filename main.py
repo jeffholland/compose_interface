@@ -256,8 +256,10 @@ class Application(tk.Frame):
             self.resize_selected_note(event.keysym)
 
         # shift key held with up/down - tilt selected note
-        elif event.state == 97 and (event.keysym == 'Up' or event.keysym == 'Down'):
-            self.tilt_selected_note(event.keysym)
+        # (removing this for now as it turned out to be more of a math challenge than I'd like to tackle right now)
+
+        # elif event.state == 97 and (event.keysym == 'Up' or event.keysym == 'Down'):
+        #     self.tilt_selected_note(event.keysym)
 
     def resize_selected_note(self, direction):
         if direction == 'Left':
@@ -267,12 +269,6 @@ class Application(tk.Frame):
                 self.selected_note.resize(self.selected_note.length - RESIZE_AMOUNT)
         elif direction == 'Right':
             self.selected_note.resize(self.selected_note.length + RESIZE_AMOUNT)
-
-    def tilt_selected_note(self, direction):
-        if direction == 'Up':
-            self.selected_note.tilt(self.selected_note.theta + TILT_AMOUNT)
-        elif direction == 'Down':
-            self.selected_note.tilt(self.selected_note.theta - TILT_AMOUNT)
 
     def move_selected_note(self, direction):
         xmove = 0

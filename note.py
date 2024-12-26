@@ -37,6 +37,3 @@ class Note:
 
     def resize(self, new_size):
         print(f"this note will be resized to {new_size}")
-
-    def tilt(self, new_angle):
-        print(f"this note will be tilted to {new_angle}")
