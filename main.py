@@ -1,5 +1,4 @@
 import tkinter as tk
-import math
 
 from constants import *
 from note import Note

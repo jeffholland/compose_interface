@@ -26,13 +26,13 @@ def print_notes(notes):
             nl.append(notes[note_a])
 
 
-    # Write notes to string
+    # Write notes to result
 
     cursor = nl[0].start_time
     result += f"/ {cursor},\n"
     for i in range(len(nl)):
         # Write note attack
-        result += f"{o_v} {nl[i].pitch},\n"
+        result += f"{o_v} {nl[i].pitch} {nl[i].pitch2} {nl[i].length},\n"
         result += f"{a_v} {nl[i].peak} {nl[i].attack},\n"
 
         # Advance cursor
