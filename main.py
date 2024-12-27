@@ -7,11 +7,13 @@ from print import print_notes
 class Application(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master, bg=W_BG)
+
+        self.notes = dict()
+        self.note_bindings_on = True
+
         self.grid()
         self.create_widgets()
         self.bind_keys()
-
-        self.notes = dict()
 
     def create_widgets(self):
         # Top row
@@ -195,9 +197,11 @@ class Application(tk.Frame):
         )
 
         self.select_note(id)
+        self.focus() # remove focus from any entry widgets
+        self.note_bindings_on = True
 
 
-    def deselect_all_notes(self):
+    def deselect_all_notes(self, event=None):
         self.selected_note = None
 
         all_notes = self.note_canvas.find_all()
@@ -221,6 +225,7 @@ class Application(tk.Frame):
             if (event.x >= self.notes[note].x and event.x <= self.notes[note].x + self.notes[note].size and
                 event.y >= self.notes[note].y and event.y <= self.notes[note].y + NOTE_HEIGHT):
                 self.select_note(self.notes[note].id)
+                self.note_bindings_on = True
                 return
         self.deselect_all_notes()
 
@@ -229,30 +234,51 @@ class Application(tk.Frame):
 
     
     def bind_keys(self):
-        self.bind_all('<Key-BackSpace>', self.delete_selected_note)
+        self.bind_all('<Key-BackSpace>', self.backspace_pressed)
         self.bind_all('<Key-Return>', self.print)
         self.bind_all('<Left>', self.arrow_key_pressed)
         self.bind_all('<Right>', self.arrow_key_pressed)
         self.bind_all('<Up>', self.arrow_key_pressed)
         self.bind_all('<Down>', self.arrow_key_pressed)
 
-    def delete_selected_note(self, event=None):
+        for obj in self.grid_slaves():
+            if isinstance(obj, tk.Entry):
+                obj.bind('<Button-1>', self.turn_note_bindings_off)
+                obj.bind('<KeyPress>', self.turn_note_bindings_off)
+
+    def turn_note_bindings_off(self, event=None):
+        self.note_bindings_on = False
+
+    def backspace_pressed(self, event):
+        if event.state == 0 and self.selected_note and self.note_bindings_on:
+            self.delete_selected_note()
+        elif event.state == 1:
+            self.clear_all()
+
+    def arrow_key_pressed(self, event):
+        if self.selected_note and self.note_bindings_on:
+            # no modifier keys - move selected note
+            if event.state == 96:
+                self.move_selected_note(event.keysym)
+
+            # shift key held with left/right - resize selected note
+            elif event.state == 97 and (event.keysym == 'Left' or event.keysym == 'Right'):
+                self.resize_selected_note(event.keysym)
+
+            # shift key held with up/down - tilt selected note
+            elif event.state == 97 and (event.keysym == 'Up' or event.keysym == 'Down'):
+                self.tilt_selected_note(event.keysym)
+
+    def delete_selected_note(self):
         self.note_canvas.delete(self.selected_note.id)
         self.notes.pop(self.selected_note.id)
         self.selected_note = None
 
-    def arrow_key_pressed(self, event):
-        # no modifier keys - move selected note
-        if event.state == 96:
-            self.move_selected_note(event.keysym)
-
-        # shift key held with left/right - resize selected note
-        elif event.state == 97 and (event.keysym == 'Left' or event.keysym == 'Right'):
-            self.resize_selected_note(event.keysym)
-
-        # shift key held with up/down - tilt selected note
-        elif event.state == 97 and (event.keysym == 'Up' or event.keysym == 'Down'):
-            self.tilt_selected_note(event.keysym)
+    def clear_all(self):
+        for note in self.notes:
+            self.note_canvas.delete(note)
+        self.notes.clear()
+        self.selected_note = None
 
     def move_selected_note(self, direction):
         xmove = 0
@@ -265,6 +291,11 @@ class Application(tk.Frame):
             ymove = -(MOVE_AMOUNT)
         elif direction == 'Down':
             ymove = MOVE_AMOUNT
+
+        # hard left boundary at 0
+        if self.selected_note.x + xmove < 0:
+            xmove = -(self.selected_note.x)
+
         self.note_canvas.move(self.selected_note.id, xmove, ymove)
         self.selected_note.move(xmove, ymove)
         self.select_note(self.selected_note.id)
