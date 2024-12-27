@@ -36,6 +36,8 @@ class Note:
     def move(self, xAmount, yAmount):
         self.x += xAmount
         self.y += yAmount
+        self.x2 += xAmount
+        self.y2 += yAmount
         self.recalc_vals()
 
     def resize(self, new_size):

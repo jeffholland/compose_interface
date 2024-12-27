@@ -26,30 +26,61 @@ def print_notes(notes):
             nl.append(notes[note_a])
 
 
-    # Write notes to result
+    # Write notes to result, traversing notes using a cursor (or "playhead")
 
-    cursor = nl[0].start_time
-    result += f"/ {cursor},\n"
+    cursor = 0
+
     for i in range(len(nl)):
+
+        # Delay until start of current note
+        result += f"/ {nl[i].start_time - cursor},\n"
+        cursor = nl[i].start_time
+
+        if '--debug' in argv:
+            result += f"--start of note {i} at {cursor},\n"
+
         # Write note attack
         result += f"{o_v} {nl[i].pitch} {nl[i].pitch2} {nl[i].length},\n"
         result += f"{a_v} {nl[i].peak} {nl[i].attack},\n"
 
-        # Advance cursor
-        cursor += nl[i].length
-        result += f"/ {nl[i].length},\n"
-        result += f"{a_v} 0 {nl[i].decay},\n"
-        result += f"/ {nl[i].decay},\n"
-
-        if i + 1 < len(nl) and nl[i + 1].start_time > cursor:
+        # if next note starts before current note ends, delay only until start of next note
+        # (start of next note overrides end of current note)
+        if i + 1 < len(nl) and cursor + nl[i].length > nl[i + 1].start_time:
             result += f"/ {nl[i + 1].start_time - cursor},\n"
             cursor = nl[i + 1].start_time
 
+            if '--debug' in argv:
+                result += f"--cursor to {cursor} for jumping from note {i} to note {i + 1},\n"
+
+        # otherwise, delay until end of current note and then begin decay current note
+        else:
+            result += f"/ {nl[i].length},\n"
+            cursor += nl[i].length
+
+            if '--debug' in argv:
+                result += f"--cursor to {cursor} for full length of note {i},\n"
+
+            # same logic as above, but for current note decay time
+            if i + 1 < len(nl) and cursor + nl[i].decay > nl[i + 1].start_time:
+                result += f"/ {nl[i + 1].start_time - cursor},\n"
+                cursor = nl[i + 1].start_time
+
+                if '--debug' in argv:
+                    result += f"--cursor to {cursor} for jump from decay of note {i} to note {i + 1},\n"
+            else:
+                result += f"{a_v} 0 {nl[i].decay},\n"
+                result += f"/ {nl[i].decay},\n"
+                cursor += nl[i].decay
+
+                if '--debug' in argv:
+                    result += f"--cursor to {cursor} for full decay of note {i},\n"
 
     # Write result to file
     outfilename = "result.txt"
-    if '--mv' in argv:
-        outfilename = "/Users/jeffholland/Documents/Pd/compose/read/" + outfilename
 
+    with open(outfilename, "w") as f:
+        f.write(result)
+
+    outfilename = "/Users/jeffholland/Documents/Pd/compose/read/" + outfilename
     with open(outfilename, "w") as f:
         f.write(result)
