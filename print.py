@@ -18,7 +18,7 @@ def print_notes(notes):
     for note_a in notes:
         inserted = False
         for i in range(len(nl)):
-            if notes[note_a].start_time < nl[i].start_time:
+            if notes[note_a].params['st'] < nl[i].params['st']:
                 nl.insert(i, notes[note_a])
                 inserted = True
                 break
@@ -33,44 +33,44 @@ def print_notes(notes):
     for i in range(len(nl)):
 
         # Delay until start of current note
-        result += f"/ {nl[i].start_time - cursor},\n"
-        cursor = nl[i].start_time
+        result += f"/ {nl[i].params['st'] - cursor},\n"
+        cursor = nl[i].params['st']
 
         if '--debug' in argv:
             result += f"--start of note {i} at {cursor},\n"
 
         # Write note attack
-        result += f"{o_v} {nl[i].pitch} {nl[i].pitch2} {nl[i].length},\n"
-        result += f"{a_v} {nl[i].peak} {nl[i].attack},\n"
+        result += f"{o_v} {nl[i].params['p']} {nl[i].params['p2']} {nl[i].params['ln']},\n"
+        result += f"{a_v} {nl[i].params['pk']} {nl[i].params['at']},\n"
 
         # if next note starts before current note ends, delay only until start of next note
         # (start of next note overrides end of current note)
-        if i + 1 < len(nl) and cursor + nl[i].length > nl[i + 1].start_time:
-            result += f"/ {nl[i + 1].start_time - cursor},\n"
-            cursor = nl[i + 1].start_time
+        if i + 1 < len(nl) and cursor + nl[i].params['ln'] > nl[i + 1].params['st']:
+            result += f"/ {nl[i + 1].params['st'] - cursor},\n"
+            cursor = nl[i + 1].params['st']
 
             if '--debug' in argv:
                 result += f"--cursor to {cursor} for jumping from note {i} to note {i + 1},\n"
 
         # otherwise, delay until end of current note and then begin decay current note
         else:
-            result += f"/ {nl[i].length},\n"
-            cursor += nl[i].length
+            result += f"/ {nl[i].params['ln']},\n"
+            cursor += nl[i].params['ln']
 
             if '--debug' in argv:
                 result += f"--cursor to {cursor} for full length of note {i},\n"
 
             # same logic as above, but for current note decay time
-            if i + 1 < len(nl) and cursor + nl[i].decay > nl[i + 1].start_time:
-                result += f"/ {nl[i + 1].start_time - cursor},\n"
-                cursor = nl[i + 1].start_time
+            if i + 1 < len(nl) and cursor + nl[i].params['dc'] > nl[i + 1].params['st']:
+                result += f"/ {nl[i + 1].params['st'] - cursor},\n"
+                cursor = nl[i + 1].params['st']
 
                 if '--debug' in argv:
                     result += f"--cursor to {cursor} for jump from decay of note {i} to note {i + 1},\n"
             else:
-                result += f"{a_v} 0 {nl[i].decay},\n"
-                result += f"/ {nl[i].decay},\n"
-                cursor += nl[i].decay
+                result += f"{a_v} 0 {nl[i].params['dc']},\n"
+                result += f"/ {nl[i].params['dc']},\n"
+                cursor += nl[i].params['dc']
 
                 if '--debug' in argv:
                     result += f"--cursor to {cursor} for full decay of note {i},\n"

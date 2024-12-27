@@ -10,6 +10,8 @@ class Application(tk.Frame):
 
         self.notes = dict()
         self.note_bindings_on = True
+        self.selected_note = None
+        self.entry_to_param = dict()
 
         self.grid()
         self.create_widgets()
@@ -24,6 +26,7 @@ class Application(tk.Frame):
         self.v_entry = tk.Entry(self, width=2, bg=W_BG, textvariable=self.v_var)
         self.v_var.set(0)
         self.v_entry.grid(row=0, column=1, pady=10)
+        self.entry_to_param[str(self.v_entry)] = 'v'
 
         self.f1_label = tk.Label(self, text="f1", bg=W_BG)
         self.f1_label.grid(row=0, column=3)
@@ -32,6 +35,7 @@ class Application(tk.Frame):
         self.f1_entry = tk.Entry(self, width=3, bg=W_BG, textvariable=self.f1_var)
         self.f1_var.set(2)
         self.f1_entry.grid(row=0, column=4, pady=10)
+        self.entry_to_param[str(self.f1_entry)] = 'f1'
 
         self.f2_label = tk.Label(self, text="f2", bg=W_BG)
         self.f2_label.grid(row=0, column=5)
@@ -40,6 +44,7 @@ class Application(tk.Frame):
         self.f2_entry = tk.Entry(self, width=3, bg=W_BG, textvariable=self.f2_var)
         self.f2_var.set(12)
         self.f2_entry.grid(row=0, column=6, pady=10)
+        self.entry_to_param[str(self.f2_entry)] = 'f2'
 
         self.f3_label = tk.Label(self, text="f3", bg=W_BG)
         self.f3_label.grid(row=0, column=7)
@@ -48,6 +53,7 @@ class Application(tk.Frame):
         self.f3_entry = tk.Entry(self, width=3, bg=W_BG, textvariable=self.f3_var)
         self.f3_var.set(440)
         self.f3_entry.grid(row=0, column=8, pady=10)
+        self.entry_to_param[str(self.f3_entry)] = 'f3'
 
 
         # Left side
@@ -59,22 +65,33 @@ class Application(tk.Frame):
         self.p_entry = tk.Entry(self, width=3, bg=W_BG, textvariable=self.p_var)
         self.p_var.set(48)
         self.p_entry.grid(row=2, column=1, padx=10)
+        self.entry_to_param[str(self.p_entry)] = 'p'
 
         self.fq_label = tk.Label(self, text="f", bg=W_BG)
         self.fq_label.grid(row=3, column=0, padx=10)
 
         self.fq_var = tk.StringVar()
         self.fq_entry = tk.Entry(self, width=3, bg=W_BG, textvariable=self.fq_var)
-        self.set_fq_var()
         self.fq_entry.grid(row=3, column=1, padx=10)
+        self.entry_to_param[str(self.fq_entry)] = 'fq'
 
         self.p2_label = tk.Label(self, text="p2", bg=W_BG)
         self.p2_label.grid(row=4, column=0, padx=10)
 
         self.p2_var = tk.StringVar()
         self.p2_entry = tk.Entry(self, width=3, bg=W_BG, textvariable=self.p2_var)
-        self.p2_var.set(0)
+        self.p2_var.set(48)
         self.p2_entry.grid(row=4, column=1, padx=10)
+        self.entry_to_param[str(self.p2_entry)] = 'p2'
+
+        self.fq2_label = tk.Label(self, text="f2", bg=W_BG)
+        self.fq2_label.grid(row=5, column=0, padx=10)
+
+        self.fq2_var = tk.StringVar()
+        self.fq2_entry = tk.Entry(self, width=3, bg=W_BG, textvariable=self.fq2_var)
+        self.fq2_entry.grid(row=5, column=1, padx=10)
+        self.entry_to_param[str(self.fq2_entry)] = 'fq2'
+        self.set_fq_vars()
 
 
         # Canvas
@@ -123,6 +140,7 @@ class Application(tk.Frame):
         self.st_var = tk.StringVar()
         self.st_entry = tk.Entry(self, width=4, bg=W_BG, textvariable=self.st_var)
         self.st_entry.grid(row=20, column=4, pady=10)
+        self.entry_to_param[str(self.st_entry)] = 'st'
 
         self.en_label = tk.Label(self, text="en", bg=W_BG)
         self.en_label.grid(row=20, column=5)
@@ -130,6 +148,7 @@ class Application(tk.Frame):
         self.en_var = tk.StringVar()
         self.en_entry = tk.Entry(self, width=4, bg=W_BG, textvariable=self.en_var)
         self.en_entry.grid(row=20, column=6, pady=10)
+        self.entry_to_param[str(self.en_entry)] = 'en'
 
         self.ln_label = tk.Label(self, text="ln", bg=W_BG)
         self.ln_label.grid(row=20, column=7)
@@ -137,6 +156,7 @@ class Application(tk.Frame):
         self.ln_var = tk.StringVar()
         self.ln_entry = tk.Entry(self, width=4, bg=W_BG, textvariable=self.ln_var)
         self.ln_entry.grid(row=20, column=8, pady=10)
+        self.entry_to_param[str(self.ln_entry)] = 'ln'
 
         self.at_label = tk.Label(self, text='at', bg=W_BG)
         self.at_label.grid(row=20, column=9)
@@ -145,6 +165,7 @@ class Application(tk.Frame):
         self.at_entry = tk.Entry(self, width=4, bg=W_BG, textvariable=self.at_var)
         self.at_var.set(0.005)
         self.at_entry.grid(row=20, column=10, pady=10)
+        self.entry_to_param[str(self.at_entry)] = 'at'
 
         self.pk_label = tk.Label(self, text='pk', bg=W_BG)
         self.pk_label.grid(row=20, column=11)
@@ -153,6 +174,7 @@ class Application(tk.Frame):
         self.pk_entry = tk.Entry(self, width=4, bg=W_BG, textvariable=self.pk_var)
         self.pk_var.set(0.25)
         self.pk_entry.grid(row=20, column=12, pady=10)
+        self.entry_to_param[str(self.pk_entry)] = 'pk'
 
         self.dc_label = tk.Label(self, text='dc', bg=W_BG)
         self.dc_label.grid(row=20, column=13)
@@ -161,16 +183,20 @@ class Application(tk.Frame):
         self.dc_entry = tk.Entry(self, width=4, bg=W_BG, textvariable=self.dc_var)
         self.dc_var.set(0.1)
         self.dc_entry.grid(row=20, column=14)
+        self.entry_to_param[str(self.dc_entry)] = 'dc'
 
 
-    def set_fq_var(self):
+    def set_fq_vars(self):
         pitch = float(self.p_var.get())
+        pitch2 = float(self.p2_var.get())
         f1 = float(self.f1_var.get())
         f2 = float(self.f2_var.get())
         f3 = float(self.f3_var.get())
 
-        frequency = pow(f1, ((pitch - 69) / f2)) * f3
-        self.fq_var.set(frequency)
+        fq1 = pow(f1, ((pitch - 69) / f2)) * f3
+        fq2 = pow(f1, ((pitch2 - 69) / f2)) * f3
+        self.fq_var.set(fq1)
+        self.fq2_var.set(fq2)
 
     def left_click_canvas(self, event):
         id = self.note_canvas.create_line(
@@ -182,19 +208,6 @@ class Application(tk.Frame):
             fill=NOTE_COLOR)
 
         self.notes[id] = Note(event.x, event.y, id)
-
-        self.notes[id].set_params(
-            {
-                'v': self.v_var.get(),
-                'f1': self.f1_var.get(),
-                'f2': self.f2_var.get(),
-                'f3': self.f3_var.get(),
-                'p2': self.p2_var.get(),
-                'at': self.at_var.get(),
-                'pk': self.pk_var.get(),
-                'dc': self.dc_var.get()
-            }
-        )
 
         self.select_note(id)
         self.focus() # remove focus from any entry widgets
@@ -213,21 +226,23 @@ class Application(tk.Frame):
         self.selected_note = self.notes[id]
         self.note_canvas.itemconfig(id, fill='white')
 
-        self.st_var.set(str(self.selected_note.start_time))
-        self.en_var.set(str(self.selected_note.end_time))
-        self.ln_var.set(str(self.selected_note.length))
-        self.p_var.set(str(self.selected_note.pitch))
-        self.p2_var.set(str(self.selected_note.pitch2))
-        self.set_fq_var()
+        self.st_var.set(str(self.selected_note.params['st']))
+        self.en_var.set(str(self.selected_note.params['en']))
+        self.ln_var.set(str(self.selected_note.params['ln']))
+        self.p_var.set(str(self.selected_note.params['p']))
+        self.p2_var.set(str(self.selected_note.params['p2']))
+        self.set_fq_vars()
         
     def right_click_canvas(self, event):
+        self.focus()
+        self.note_bindings_on = True
         for note in self.notes:
-            if (event.x >= self.notes[note].x and event.x <= self.notes[note].x + self.notes[note].size and
-                event.y >= self.notes[note].y and event.y <= self.notes[note].y + NOTE_HEIGHT):
+            if (event.x >= self.notes[note].params['x'] and event.x <= self.notes[note].params['x'] + self.notes[note].size and
+                event.y >= self.notes[note].params['y'] and event.y <= self.notes[note].params['y'] + NOTE_HEIGHT):
                 self.select_note(self.notes[note].id)
-                self.note_bindings_on = True
                 return
         self.deselect_all_notes()
+
 
     def print(self, event=None):
         print_notes(self.notes)
@@ -235,7 +250,7 @@ class Application(tk.Frame):
     
     def bind_keys(self):
         self.bind_all('<Key-BackSpace>', self.backspace_pressed)
-        self.bind_all('<Key-Return>', self.print)
+        self.bind_all('<Key-Return>', self.return_pressed)
         self.bind_all('<Left>', self.arrow_key_pressed)
         self.bind_all('<Right>', self.arrow_key_pressed)
         self.bind_all('<Up>', self.arrow_key_pressed)
@@ -245,6 +260,17 @@ class Application(tk.Frame):
             if isinstance(obj, tk.Entry):
                 obj.bind('<Button-1>', self.turn_note_bindings_off)
                 obj.bind('<KeyPress>', self.turn_note_bindings_off)
+                obj.bind('<Key-Return>', self.update_selected_note)
+
+    def update_selected_note(self, event=None):
+        param = self.entry_to_param[str(event.widget)]
+        self.selected_note.set_param(param, float(event.widget.get()))
+        self.note_canvas.coords(self.selected_note.id,
+                                self.selected_note.params['x'],
+                                self.selected_note.params['y'],
+                                self.selected_note.params['x2'],
+                                self.selected_note.params['y2'])
+        self.select_note(self.selected_note.id)
 
     def turn_note_bindings_off(self, event=None):
         self.note_bindings_on = False
@@ -254,6 +280,11 @@ class Application(tk.Frame):
             self.delete_selected_note()
         elif event.state == 1:
             self.clear_all()
+
+    def return_pressed(self, event):
+        # shift+enter to print to text
+        if event.state == 1:
+            self.print()
 
     def arrow_key_pressed(self, event):
         if self.selected_note and self.note_bindings_on:
@@ -293,8 +324,8 @@ class Application(tk.Frame):
             ymove = MOVE_AMOUNT
 
         # hard left boundary at 0
-        if self.selected_note.x + xmove < 0:
-            xmove = -(self.selected_note.x)
+        if self.selected_note.params['x'] + xmove < 0:
+            xmove = -(self.selected_note.params['x'])
 
         self.note_canvas.move(self.selected_note.id, xmove, ymove)
         self.selected_note.move(xmove, ymove)
@@ -315,8 +346,8 @@ class Application(tk.Frame):
 
         self.selected_note.resize(new_size)
         self.note_canvas.coords(self.selected_note.id, 
-                                self.selected_note.x, self.selected_note.y, 
-                                self.selected_note.x2, self.selected_note.y2)
+                                self.selected_note.params['x'], self.selected_note.params['y'], 
+                                self.selected_note.params['x2'], self.selected_note.params['y2'])
         self.select_note(self.selected_note.id)
 
     def tilt_selected_note(self, direction):
@@ -326,7 +357,8 @@ class Application(tk.Frame):
             tilt_amount = MOVE_AMOUNT
         
         self.selected_note.tilt(tilt_amount)
-        self.note_canvas.coords(self.selected_note.id, self.selected_note.x, self.selected_note.y, self.selected_note.x2, self.selected_note.y2)
+        self.note_canvas.coords(self.selected_note.id, self.selected_note.params['x'], 
+                                self.selected_note.params['y'], self.selected_note.params['x2'], self.selected_note.params['y2'])
         self.select_note(self.selected_note.id)
 
 app = Application()

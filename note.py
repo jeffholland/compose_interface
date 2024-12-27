@@ -3,27 +3,51 @@ import math
 
 class Note:
     def __init__(self, x, y, id, size=NOTE_SIZE):
-        self.x = x
-        self.y = y
         self.id = id
         self.size = size
-        self.x2 = x + size
-        self.y2 = y
+
+        self.params = {
+            'x': x,
+            'y': y,
+            'x2': x + size,
+            'y2': y,
+            'at': 0.005,
+            'pk': 0.25,
+            'dc': 0.1
+        }
         
-        self.recalc_vals()
+        self.recalc_vals_from_coords()
 
-        self.attack = 0.005
-        self.peak = 0.25
-        self.decay = 0.1
+    def recalc_vals_from_coords(self):
+        self.params['st'] = (self.params['x'] / CANV_WIDTH) * TIME_LENGTH
+        self.params['en'] = ((self.params['x'] + self.size)/ CANV_WIDTH) * TIME_LENGTH
+        self.params['ln'] = self.params['en'] - self.params['st']
+        self.params['p'] = PITCH_RANGE - ((self.params['y'] / CANV_HEIGHT) * PITCH_RANGE)
+        self.params['p2'] = PITCH_RANGE - ((self.params['y2'] / CANV_HEIGHT) * PITCH_RANGE)
 
-        self.params = dict()
+    def recalc_coords_from_vals(self):
+        self.params['x'] = (self.params['st'] / TIME_LENGTH) * CANV_WIDTH
+        self.params['x2'] = (self.params['en'] / TIME_LENGTH) * CANV_WIDTH
+        self.params['ln'] = self.params['en'] - self.params['st']
+        self.params['y'] = CANV_HEIGHT - ((self.params['p'] / PITCH_RANGE) * CANV_HEIGHT)
+        self.params['y2'] = CANV_HEIGHT - ((self.params['p2'] / PITCH_RANGE) * CANV_HEIGHT)
 
-    def recalc_vals(self):
-        self.start_time = (self.x / CANV_WIDTH) * TIME_LENGTH
-        self.end_time = ((self.x + self.size)/ CANV_WIDTH) * TIME_LENGTH
-        self.length = self.end_time - self.start_time
-        self.pitch = PITCH_RANGE - ((self.y / CANV_HEIGHT) * PITCH_RANGE)
-        self.pitch2 = PITCH_RANGE - ((self.y2 / CANV_HEIGHT) * PITCH_RANGE)
+    def set_param(self, key, val):
+        # params dependent on other params
+        if key in ['p', 'p2', 'st', 'en', 'ln']:
+            diff = val - self.params[key]
+
+            if key == 'st':
+                self.params['en'] += diff
+            if key == 'en':
+                self.params['ln'] += diff
+            if key == 'ln':
+                self.params['en'] += diff
+            if key == 'p':
+                self.params['p2'] += diff
+
+        self.params[key] = val
+        self.recalc_coords_from_vals()
 
     def set_params(self, params):
         # expects a dictionary
@@ -34,17 +58,17 @@ class Note:
             self.params[key] = value
 
     def move(self, xAmount, yAmount):
-        self.x += xAmount
-        self.y += yAmount
-        self.x2 += xAmount
-        self.y2 += yAmount
-        self.recalc_vals()
+        self.params['x'] += xAmount
+        self.params['y'] += yAmount
+        self.params['x2'] += xAmount
+        self.params['y2'] += yAmount
+        self.recalc_vals_from_coords()
 
     def resize(self, new_size):
         self.size = new_size
-        self.x2 = self.x + self.size
-        self.recalc_vals()
+        self.params['x2'] = self.params['x'] + self.size
+        self.recalc_vals_from_coords()
 
     def tilt(self, tilt_amount):
-        self.y2 += tilt_amount
-        self.recalc_vals()
+        self.params['y2'] += tilt_amount
+        self.recalc_vals_from_coords()
