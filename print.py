@@ -36,9 +36,6 @@ def print_notes(notes):
         result += f"/ {nl[i].params['st'] - cursor},\n"
         cursor = nl[i].params['st']
 
-        if '--debug' in argv:
-            result += f"--start of note {i} at {cursor},\n"
-
         # Write note attack
         result += f"{o_v} {nl[i].params['p']} {nl[i].params['p2']} {nl[i].params['ln']},\n"
         result += f"{a_v} {nl[i].params['pk']} {nl[i].params['at']},\n"
@@ -49,31 +46,19 @@ def print_notes(notes):
             result += f"/ {nl[i + 1].params['st'] - cursor},\n"
             cursor = nl[i + 1].params['st']
 
-            if '--debug' in argv:
-                result += f"--cursor to {cursor} for jumping from note {i} to note {i + 1},\n"
-
         # otherwise, delay until end of current note and then begin decay current note
         else:
             result += f"/ {nl[i].params['ln']},\n"
             cursor += nl[i].params['ln']
 
-            if '--debug' in argv:
-                result += f"--cursor to {cursor} for full length of note {i},\n"
-
             # same logic as above, but for current note decay time
             if i + 1 < len(nl) and cursor + nl[i].params['dc'] > nl[i + 1].params['st']:
                 result += f"/ {nl[i + 1].params['st'] - cursor},\n"
                 cursor = nl[i + 1].params['st']
-
-                if '--debug' in argv:
-                    result += f"--cursor to {cursor} for jump from decay of note {i} to note {i + 1},\n"
             else:
                 result += f"{a_v} 0 {nl[i].params['dc']},\n"
                 result += f"/ {nl[i].params['dc']},\n"
                 cursor += nl[i].params['dc']
-
-                if '--debug' in argv:
-                    result += f"--cursor to {cursor} for full decay of note {i},\n"
 
     # Write result to file
     outfilename = "./pd/read/result.txt"

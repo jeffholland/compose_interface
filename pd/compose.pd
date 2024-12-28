@@ -1,4 +1,4 @@
-#N canvas 911 246 419 371 12;
+#N canvas 1088 81 419 371 12;
 #X obj 29 31 bng 19 250 50 0 start_out start_in start 0 -10 0 12 #fcfcfc #000000 #000000;
 #X obj 29 74 tgl 19 0 loop empty loop 0 -10 0 12 #fcfcfc #000000 #000000 0 1;
 #X floatatom 157 73 5 0 0 0 tempo - tempo 0;
@@ -14,7 +14,7 @@
 #X obj 278 54 spigot;
 #X obj 328 31 r rec_switch;
 #X obj 290 203 r rec_stop;
-#X msg 249 167 open out/ci-3sw.wav \, start;
+#X msg 249 167 open out/ci-4.wav \, start;
 #X connect 1 0 0 0;
 #X connect 1 0 4 0;
 #X connect 2 0 0 1;
@@ -170,7 +170,7 @@
 #X obj 83 170 r f2;
 #X obj 118 170 r f3;
 #X obj 306 172 print;
-#X obj 28 266 saw~;
+#X obj 28 266 osc~;
 #X connect 5 0 21 0;
 #X connect 9 0 33 0;
 #X connect 10 0 11 0;
