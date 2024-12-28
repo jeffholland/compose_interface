@@ -76,11 +76,6 @@ def print_notes(notes):
                     result += f"--cursor to {cursor} for full decay of note {i},\n"
 
     # Write result to file
-    outfilename = "result.txt"
-
-    with open(outfilename, "w") as f:
-        f.write(result)
-
-    outfilename = "/Users/jeffholland/Documents/Pd/compose/read/" + outfilename
+    outfilename = "./pd/read/result.txt"
     with open(outfilename, "w") as f:
         f.write(result)
