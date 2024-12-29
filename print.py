@@ -2,8 +2,8 @@ from sys import argv
 
 def print_notes(notes):
     # expects a dict of {id, note obj}
-    if not isinstance(notes, dict):
-        raise TypeError("passed non-dict to print_notes in print.py")
+    if not isinstance(notes, list):
+        raise TypeError("passed non-list to print_notes in print.py")
 
     result = ""
     nl = []         # notes list, sorted by start time (objects only)
@@ -15,15 +15,15 @@ def print_notes(notes):
 
     # Sort notes by start time
     
-    for note_a in notes:
+    for note in notes:
         inserted = False
         for i in range(len(nl)):
-            if notes[note_a].params['st'] < nl[i].params['st']:
-                nl.insert(i, notes[note_a])
+            if note.params['st'] < nl[i].params['st']:
+                nl.insert(i, note)
                 inserted = True
                 break
         if not inserted:
-            nl.append(notes[note_a])
+            nl.append(note)
 
 
     # Write notes to result, traversing notes using a cursor (or "playhead")

@@ -3,15 +3,18 @@ import tkinter as tk
 from constants import *
 from note import Note
 from print import print_notes
+from voice import load_voices
 
 class Application(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master, bg=W_BG)
 
-        self.notes = dict()
+        self.notes = []
         self.note_bindings_on = True
         self.selected_note = None
         self.entry_to_param = dict()
+
+        self.voices = load_voices()
 
         self.grid()
         self.create_widgets()
@@ -25,15 +28,6 @@ class Application(tk.Frame):
 
     def create_widgets(self):
         # Top row
-        self.v_label = tk.Label(self, text="V")
-        self.v_label.grid(row=0, column=0)
-
-        self.v_var = tk.StringVar()
-        self.v_entry = tk.Entry(self, textvariable=self.v_var)
-        self.v_var.set(0)
-        self.v_entry.grid(row=0, column=1, pady=10)
-        self.entry_to_param[str(self.v_entry)] = 'v'
-
         self.f1_label = tk.Label(self, text="f1")
         self.f1_label.grid(row=0, column=3)
 
@@ -117,6 +111,14 @@ class Application(tk.Frame):
         self.voices_listbox = tk.Listbox(self, width=10, height=12, listvariable=self.voices_list, bg=NOTE_COLOR)
         self.voices_listbox.grid(row=1, column=21, rowspan=8, columnspan=2)
 
+        voice_str = ""
+        for voice in self.voices:
+            voice_str += voice + ' '
+        self.voices_list.set(voice_str)
+        self.voices_listbox.selection_set(0)
+        self.selected_voice = self.voices_listbox.selection_get()
+        self.voices_listbox.bind('<<ListboxSelect>>', self.update_voice)
+
         self.btn_add_voice = tk.Button(self, text='+', width=1, highlightbackground=W_BG)
         self.btn_add_voice.grid(row=9, column=21)
         self.btn_rm_voice = tk.Button(self, text='-', width=1, highlightbackground=W_BG)
@@ -128,24 +130,12 @@ class Application(tk.Frame):
         self.params_list = tk.StringVar()
         self.params_listbox = tk.Listbox(self, width=10, height=12, listvariable=self.params_list, bg=NOTE_COLOR)
         self.params_listbox.grid(row=11, column=21, rowspan=8, columnspan=2)
+        self.update_voice()
 
         self.btn_add_param = tk.Button(self, text='+', width=1, highlightbackground=W_BG)
         self.btn_add_param.grid(row=19, column=21)
         self.btn_rm_param = tk.Button(self, text='-', width=1, highlightbackground=W_BG)
         self.btn_rm_param.grid(row=19, column=22)
-
-        # self.vars_label = tk.Label(self, text="Vars", width=12)
-        # self.vars_label.grid(row=0, column=23, columnspan=2)
-
-        # self.vars_list = tk.StringVar()
-        # self.vars_listbox = tk.Listbox(self, width=10, height=30, listvariable=self.vars_list, bg=NOTE_COLOR)
-        # self.vars_listbox.grid(row=1, column=23, rowspan=18, columnspan=2)
-
-        # self.btn_add_var = tk.Button(self, text='+', width=1, highlightbackground=W_BG)
-        # self.btn_add_var.grid(row=20, column=23)
-        # self.btn_rm_var = tk.Button(self, text='-', width=1, highlightbackground=W_BG)
-        # self.btn_rm_var.grid(row=20, column=24)
-
 
         # Bottom
 
@@ -203,19 +193,6 @@ class Application(tk.Frame):
         self.dc_entry.grid(row=20, column=14)
         self.entry_to_param[str(self.dc_entry)] = 'dc'
 
-
-    def set_fq_vars(self):
-        pitch = float(self.p_var.get())
-        pitch2 = float(self.p2_var.get())
-        f1 = float(self.f1_var.get())
-        f2 = float(self.f2_var.get())
-        f3 = float(self.f3_var.get())
-
-        fq1 = pow(f1, ((pitch - 69) / f2)) * f3
-        fq2 = pow(f1, ((pitch2 - 69) / f2)) * f3
-        self.fq_var.set(fq1)
-        self.fq2_var.set(fq2)
-
     def left_click_canvas(self, event):
         id = self.note_canvas.create_line(
             event.x, 
@@ -223,13 +200,42 @@ class Application(tk.Frame):
             event.x + NOTE_SIZE, 
             event.y, 
             width=NOTE_HEIGHT, 
-            fill=NOTE_COLOR)
+            fill=NOTE_COLOR,
+            tag=self.selected_voice)
 
-        self.notes[id] = Note(event.x, event.y, id)
+        self.notes.append(Note(self.selected_voice, event.x, event.y, id))
 
         self.select_note(id)
         self.focus() # remove focus from any entry widgets
         self.note_bindings_on = True
+
+
+    def update_voice(self, event=None):
+        for note in self.notes:
+            if note.voice == self.selected_voice:
+                note.hidden = True
+        self.note_canvas.delete(self.selected_voice)
+
+        self.selected_voice = self.voices_listbox.selection_get()
+
+        for note in self.notes:
+            if note.voice == self.selected_voice:
+                note.hidden = False
+                note.id = self.note_canvas.create_line(
+                    note.params['x'], 
+                    note.params['y'], 
+                    note.params['x2'], 
+                    note.params['y2'], 
+                    width=NOTE_HEIGHT, 
+                    fill=NOTE_COLOR,
+                    tag=self.selected_voice)
+
+
+        params_str = ""
+        selected_voice = self.selected_voice
+        for param in self.voices[selected_voice]['params']:
+            params_str += param + ' '
+        self.params_list.set(params_str)
 
 
     def deselect_all_notes(self, event=None):
@@ -241,7 +247,9 @@ class Application(tk.Frame):
 
     def select_note(self, id):
         self.deselect_all_notes()
-        self.selected_note = self.notes[id]
+        for note in self.notes:
+            if note.id == id:
+                self.selected_note = note
         self.note_canvas.itemconfig(id, fill='white')
 
         self.st_var.set(str(self.selected_note.params['st']))
@@ -255,9 +263,9 @@ class Application(tk.Frame):
         self.focus()
         self.note_bindings_on = True
         for note in self.notes:
-            if (event.x >= self.notes[note].params['x'] and event.x <= self.notes[note].params['x'] + self.notes[note].size and
-                event.y >= self.notes[note].params['y'] and event.y <= self.notes[note].params['y'] + NOTE_HEIGHT):
-                self.select_note(self.notes[note].id)
+            if (event.x >= note.params['x'] and event.x <= note.params['x'] + note.size and
+                event.y >= note.params['y'] and event.y <= note.params['y'] + NOTE_HEIGHT):
+                self.select_note(note.id)
                 return
         self.deselect_all_notes()
 
@@ -320,12 +328,12 @@ class Application(tk.Frame):
 
     def delete_selected_note(self):
         self.note_canvas.delete(self.selected_note.id)
-        self.notes.pop(self.selected_note.id)
+        self.notes.remove(self.selected_note)
         self.selected_note = None
 
     def clear_all(self):
         for note in self.notes:
-            self.note_canvas.delete(note)
+            self.note_canvas.delete(note.id)
         self.notes.clear()
         self.selected_note = None
 
@@ -378,6 +386,18 @@ class Application(tk.Frame):
         self.note_canvas.coords(self.selected_note.id, self.selected_note.params['x'], 
                                 self.selected_note.params['y'], self.selected_note.params['x2'], self.selected_note.params['y2'])
         self.select_note(self.selected_note.id)
+
+    def set_fq_vars(self):
+        pitch = float(self.p_var.get())
+        pitch2 = float(self.p2_var.get())
+        f1 = float(self.f1_var.get())
+        f2 = float(self.f2_var.get())
+        f3 = float(self.f3_var.get())
+
+        fq1 = pow(f1, ((pitch - 69) / f2)) * f3
+        fq2 = pow(f1, ((pitch2 - 69) / f2)) * f3
+        self.fq_var.set(fq1)
+        self.fq2_var.set(fq2)
 
 app = Application()
 app.master.title("Compose interface")

@@ -2,9 +2,14 @@ from constants import *
 import math
 
 class Note:
-    def __init__(self, x, y, id, size=NOTE_SIZE):
+    def __init__(self, voice, x, y, id, size=NOTE_SIZE):
         self.id = id
         self.size = size
+
+        self.voice = voice
+        self.hidden = False 
+        # a note is hidden if another voice is selected - 
+        # this is always false when the note is created
 
         self.params = {
             'x': x,
