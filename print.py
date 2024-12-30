@@ -11,8 +11,10 @@ def print_notes(notes, voices):
     notes = sorted(notes, key=lambda note: note.params['st'])
 
     # Write notes to result, traversing notes using a cursor (or "playhead")
+    # Track "unfinished" notes in a list to make sure all notes get finished
 
     cursor = 0
+    unfinished = []
 
     for i in range(len(notes)):
 
@@ -36,8 +38,9 @@ def print_notes(notes, voices):
         dc = notes[i].params['dc']
 
         # Delay until start of current note
-        result += f"/ {st - cursor},\n"
-        cursor = st
+        if st > cursor:
+            result += f"/ {st - cursor},\n"
+            cursor = st
 
         # Write note attack
         result += f"{o_v} {p} {p2} {ln},\n"
@@ -48,6 +51,8 @@ def print_notes(notes, voices):
         if next_st and cursor + ln > next_st:
             result += f"/ {next_st - cursor},\n"
             cursor = next_st
+
+            unfinished.append(notes[i])
         else:
             result += f"/ {ln},\n"
             cursor += ln
@@ -60,6 +65,23 @@ def print_notes(notes, voices):
                 result += f"{a_v} 0 {dc},\n"
                 result += f"/ {dc},\n"
                 cursor += dc
+
+        # finish unfinished notes
+        for u_note in unfinished:
+            u_en = u_note.params['en']
+            u_dc = u_note.params['dc']
+            u_a_v = voices[u_note.voice]['a_v']
+
+            if not next_st or next_st > u_en:
+                result += f"/ {u_en - cursor},\n"
+                cursor = u_en
+                result += f"{u_a_v} 0 {u_dc},\n"
+
+                if not next_st:
+                    result += f"/ {u_dc},\n"
+                
+                unfinished.remove(u_note)
+
 
     # Write result to file
     outfilename = "./pd/read/result.txt"
