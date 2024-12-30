@@ -14,7 +14,7 @@
 #X obj 278 54 spigot;
 #X obj 328 31 r rec_switch;
 #X obj 290 203 r rec_stop;
-#X msg 249 167 open out/ci-4.wav \, start;
+#X msg 249 167 open out/ci-5.wav \, start;
 #X connect 1 0 4 0;
 #X connect 1 0 0 0;
 #X connect 2 0 4 1;
@@ -163,11 +163,11 @@
 #X obj 49 169 r f1;
 #X obj 83 170 r f2;
 #X obj 118 170 r f3;
-#X obj 461 169 print;
+#X obj 171 167 print;
 #X obj 28 266 osc~;
 #X obj 200 350 throw~ outL;
 #X obj 220 374 throw~ outR;
-#X obj 29 142 route o1 a1 o2 a2, f 48;
+#X obj 29 142 route o1 a1 o2 a2, f 21;
 #X connect 5 0 30 0;
 #X connect 9 0 27 0;
 #X connect 10 0 11 0;

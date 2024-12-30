@@ -1,4 +1,5 @@
 import tkinter as tk
+import tkinter.messagebox as tk_msg
 
 from json import load as jsload
 
@@ -104,92 +105,6 @@ class Application(tk.Frame):
         self.note_canvas.bind('<Button-2>', self.right_click_canvas)
 
 
-        # Right side - top half: voices
-
-        self.voices_label = tk.Label(self, text="Voices", width=12)
-        self.voices_label.grid(row=0, column=21, columnspan=2)
-
-        self.voices_list = tk.StringVar()
-        self.voices_listbox = tk.Listbox(self, width=10, height=12, listvariable=self.voices_list, bg=NOTE_COLOR, selectmode='browse')
-        self.voices_listbox.grid(row=1, column=21, rowspan=8, columnspan=2)
-
-        voice_str = ""
-        for voice in self.voices:
-            voice_str += voice + ' '
-        self.voices_list.set(voice_str)
-        self.voices_listbox.selection_set(0)
-        self.selected_voice = self.voices_listbox.get(0)
-        self.voices_listbox.bind('<<ListboxSelect>>', self.listbox_selected)
-
-        self.btn_add_voice = tk.Button(self, text='+', width=1)
-        self.btn_add_voice.grid(row=9, column=21)
-        self.btn_rm_voice = tk.Button(self, text='-', width=1)
-        self.btn_rm_voice.grid(row=9, column=22)
-        self.voice_name_label = tk.Label(self, text='name')
-        self.voice_name_label.grid(row=2, column=23)
-
-        self.voice_name_var = tk.StringVar()
-        self.voice_name_entry = tk.Entry(self, textvariable=self.voice_name_var)
-        self.voice_name_entry.grid(row=2, column=24, padx=10)
-        self.voice_name_var.set(self.selected_voice)
-
-        self.o_v_label = tk.Label(self, text='o_v')
-        self.o_v_label.grid(row=3, column=23)
-        
-        self.o_v_var = tk.StringVar()
-        self.o_v_entry = tk.Entry(self, textvariable=self.o_v_var)
-        self.o_v_entry.grid(row=3, column=24, padx=10)
-        self.o_v_var.set(self.voices[self.selected_voice]['o_v'])
-
-        self.a_v_label = tk.Label(self, text='a_v')
-        self.a_v_label.grid(row=4, column=23)
-        
-        self.a_v_var = tk.StringVar()
-        self.a_v_entry = tk.Entry(self, textvariable=self.a_v_var)
-        self.a_v_entry.grid(row=4, column=24, padx=10)
-        self.a_v_var.set(self.voices[self.selected_voice]['a_v'])
-
-
-        # Right side - bottom half: parameters
-
-        self.params_label = tk.Label(self, text="Params", width=12)
-        self.params_label.grid(row=10, column=21, columnspan=2)
-
-        self.params_list = tk.StringVar()
-        self.params_listbox = tk.Listbox(self, width=10, height=12, listvariable=self.params_list, bg=NOTE_COLOR, selectmode='browse')
-        self.params_listbox.grid(row=11, column=21, rowspan=8, columnspan=2)
-        self.params_listbox.bind('<<ListboxSelect>>', self.listbox_selected)
-        self.selected_param = None
-
-        self.btn_add_param = tk.Button(self, text='+', width=1)
-        self.btn_add_param.grid(row=19, column=21)
-        self.btn_rm_param = tk.Button(self, text='-', width=1)
-        self.btn_rm_param.grid(row=19, column=22)
-
-        self.pm_name_label = tk.Label(self, text='name')
-        self.pm_name_label.grid(row=11, column=23)
-        
-        self.pm_name_var = tk.StringVar()
-        self.pm_name_entry = tk.Entry(self, textvariable=self.pm_name_var)
-        self.pm_name_entry.grid(row=11, column=24, padx=10)
-
-        self.pm_v1_label = tk.Label(self, text='v1')
-        self.pm_v1_label.grid(row=12, column=23)
-        
-        self.pm_v1_var = tk.StringVar()
-        self.pm_v1_entry = tk.Entry(self, textvariable=self.pm_v1_var)
-        self.pm_v1_entry.grid(row=12, column=24, padx=10)
-
-        self.pm_v2_label = tk.Label(self, text='v2')
-        self.pm_v2_label.grid(row=13, column=23)
-        
-        self.pm_v2_var = tk.StringVar()
-        self.pm_v2_entry = tk.Entry(self, textvariable=self.pm_v2_var)
-        self.pm_v2_entry.grid(row=13, column=24, padx=10)
-
-        self.update_voice()
-
-
         # Bottom
 
         self.print_button = tk.Button(self, text="print", command=self.print)
@@ -247,6 +162,103 @@ class Application(tk.Frame):
         self.entry_to_param[str(self.dc_entry)] = 'dc'
 
 
+        # Right side - top half: voices
+
+        self.voice_entries = []
+
+        self.voices_label = tk.Label(self, text="Voices", width=12)
+        self.voices_label.grid(row=0, column=21, columnspan=2)
+
+        self.voices_list = tk.StringVar()
+        self.voices_listbox = tk.Listbox(self, width=10, height=12, listvariable=self.voices_list, bg=NOTE_COLOR, selectmode='browse')
+        self.voices_listbox.grid(row=1, column=21, rowspan=8, columnspan=2)
+
+        voice_str = ""
+        for voice in self.voices:
+            voice_str += voice['name'] + ' '
+        self.voices_list.set(voice_str)
+        self.voices_listbox.selection_set(0)
+        for voice in self.voices:
+            if voice['name'] == self.voices_listbox.get(0):
+                self.selected_voice = voice
+        self.voices_listbox.bind('<<ListboxSelect>>', self.listbox_selected)
+
+        self.btn_add_voice = tk.Button(self, text='+', width=1)
+        self.btn_add_voice.grid(row=9, column=21)
+        self.btn_rm_voice = tk.Button(self, text='-', width=1)
+        self.btn_rm_voice.grid(row=9, column=22)
+
+        self.voice_name_label = tk.Label(self, text='name')
+        self.voice_name_label.grid(row=2, column=23)
+
+        self.voice_name_var = tk.StringVar()
+        self.voice_name_entry = tk.Entry(self, textvariable=self.voice_name_var)
+        self.voice_name_entry.grid(row=2, column=24, padx=10)
+        self.voice_name_var.set(self.selected_voice['name'])
+        self.voice_entries.append(self.voice_name_entry)
+
+        self.o_v_label = tk.Label(self, text='o_v')
+        self.o_v_label.grid(row=3, column=23)
+        
+        self.o_v_var = tk.StringVar()
+        self.o_v_entry = tk.Entry(self, textvariable=self.o_v_var)
+        self.o_v_entry.grid(row=3, column=24, padx=10)
+        self.o_v_var.set(self.selected_voice['o_v'])
+        self.voice_entries.append(self.o_v_entry)
+
+        self.a_v_label = tk.Label(self, text='a_v')
+        self.a_v_label.grid(row=4, column=23)
+        
+        self.a_v_var = tk.StringVar()
+        self.a_v_entry = tk.Entry(self, textvariable=self.a_v_var)
+        self.a_v_entry.grid(row=4, column=24, padx=10)
+        self.a_v_var.set(self.selected_voice['a_v'])
+        self.voice_entries.append(self.a_v_entry)
+
+
+        # Right side - bottom half: parameters
+
+        self.param_entries = []
+
+        self.params_label = tk.Label(self, text="Params", width=12)
+        self.params_label.grid(row=10, column=21, columnspan=2)
+
+        self.params_list = tk.StringVar()
+        self.params_listbox = tk.Listbox(self, width=10, height=12, listvariable=self.params_list, bg=NOTE_COLOR, selectmode='browse')
+        self.params_listbox.grid(row=11, column=21, rowspan=8, columnspan=2)
+        self.params_listbox.bind('<<ListboxSelect>>', self.listbox_selected)
+        self.selected_param = None
+
+        self.btn_add_param = tk.Button(self, text='+', width=1)
+        self.btn_add_param.grid(row=19, column=21)
+        self.btn_rm_param = tk.Button(self, text='-', width=1)
+        self.btn_rm_param.grid(row=19, column=22)
+
+        self.pm_name_label = tk.Label(self, text='name')
+        self.pm_name_label.grid(row=11, column=23)
+        
+        self.pm_name_var = tk.StringVar()
+        self.pm_name_entry = tk.Entry(self, textvariable=self.pm_name_var)
+        self.pm_name_entry.grid(row=11, column=24, padx=10)
+        self.voice_entries.append(self.pm_name_entry)
+
+        self.pm_v1_label = tk.Label(self, text='v1')
+        self.pm_v1_label.grid(row=12, column=23)
+        
+        self.pm_v1_var = tk.StringVar()
+        self.pm_v1_entry = tk.Entry(self, textvariable=self.pm_v1_var)
+        self.pm_v1_entry.grid(row=12, column=24, padx=10)
+
+        self.pm_v2_label = tk.Label(self, text='v2')
+        self.pm_v2_label.grid(row=13, column=23)
+        
+        self.pm_v2_var = tk.StringVar()
+        self.pm_v2_entry = tk.Entry(self, textvariable=self.pm_v2_var)
+        self.pm_v2_entry.grid(row=13, column=24, padx=10)
+
+        self.select_voice()
+
+
         # Mass-config widgets
         for widget in self.grid_slaves():
             if 'label' in str(widget) or 'entry' in str(widget):
@@ -263,11 +275,11 @@ class Application(tk.Frame):
         
         voice_selected = self.voices_listbox.curselection()
         if event.widget == self.voices_listbox and len(voice_selected) > 0:
-            self.update_voice()
+            self.select_voice()
         
         param_selected = self.params_listbox.curselection()
         if event.widget == self.params_listbox and len(param_selected) > 0:
-            self.update_param()
+            self.select_param()
 
 
     def left_click_canvas(self, event):
@@ -278,25 +290,27 @@ class Application(tk.Frame):
             event.y, 
             width=NOTE_HEIGHT, 
             fill=NOTE_COLOR,
-            tag=self.selected_voice)
+            tag=self.selected_voice['name'])
 
-        self.notes.append(Note(self.selected_voice, event.x, event.y, id))
+        self.notes.append(Note(self.selected_voice['name'], event.x, event.y, id))
 
         self.select_note(id)
         self.focus() # remove focus from any entry widgets
         self.note_bindings_on = True
 
 
-    def update_voice(self):
+    def select_voice(self):
         for note in self.notes:
-            if note.voice == self.selected_voice:
+            if note.voice == self.selected_voice['name']:
                 note.hidden = True
-        self.note_canvas.delete(self.selected_voice)
+        self.note_canvas.delete(self.selected_voice['name'])
 
-        self.selected_voice = self.voices_listbox.get(self.voices_listbox.curselection()[0])
+        for voice in self.voices:
+            if voice['name'] == self.voices_listbox.get(self.voices_listbox.curselection()[0]):
+                self.selected_voice = voice
 
         for note in self.notes:
-            if note.voice == self.selected_voice:
+            if note.voice == self.selected_voice['name']:
                 note.hidden = False
                 note.id = self.note_canvas.create_line(
                     note.params['x'], 
@@ -305,24 +319,38 @@ class Application(tk.Frame):
                     note.params['y2'], 
                     width=NOTE_HEIGHT, 
                     fill=NOTE_COLOR,
-                    tag=self.selected_voice)
+                    tag=self.selected_voice['name'])
 
         params_str = ""
-        selected_voice = self.selected_voice
-        for param in self.voices[selected_voice]['params']:
+        for param in self.selected_voice['params']:
             params_str += param + ' '
         self.params_list.set(params_str)
 
-        self.voice_name_var.set(self.selected_voice)
-        self.o_v_var.set(self.voices[self.selected_voice]['o_v'])
-        self.a_v_var.set(self.voices[self.selected_voice]['a_v'])
+        self.voice_name_var.set(self.selected_voice['name'])
+        self.o_v_var.set(self.selected_voice['o_v'])
+        self.a_v_var.set(self.selected_voice['a_v'])
 
         self.params_listbox.selection_set(0)
 
 
-    def update_param(self):
+    def select_param(self):
         self.selected_param = self.params_listbox.get(self.params_listbox.curselection()[0])
         self.pm_name_var.set(self.selected_param)
+
+        self.entry_to_param[str(self.pm_v1_entry)] = self.selected_param + '_1'
+        self.entry_to_param[str(self.pm_v2_entry)] = self.selected_param + '_2'
+
+        try:
+            pm1 = self.selected_note.params[self.selected_param + '_1']
+            self.pm_v1_var.set(pm1)
+        except KeyError or AttributeError:
+            self.pm_v1_var.set('')
+
+        try:
+            pm2 = self.selected_note.params[self.selected_param + '_2']
+            self.pm_v2_var.set(pm2)
+        except KeyError or AttributeError:
+            self.pm_v2_var.set('')
 
 
     def deselect_all_notes(self, event=None):
@@ -373,17 +401,34 @@ class Application(tk.Frame):
             if isinstance(obj, tk.Entry):
                 obj.bind('<Button-1>', self.turn_note_bindings_off)
                 obj.bind('<KeyPress>', self.turn_note_bindings_off)
-                obj.bind('<Key-Return>', self.update_selected_note)
+                if obj in self.voice_entries:
+                    obj.bind('<Key-Return>', self.update_selected_voice)
+                else:
+                    obj.bind('<Key-Return>', self.update_selected_note)
 
     def update_selected_note(self, event=None):
-        param = self.entry_to_param[str(event.widget)]
-        self.selected_note.set_param(param, float(event.widget.get()))
-        self.note_canvas.coords(self.selected_note.id,
-                                self.selected_note.params['x'],
-                                self.selected_note.params['y'],
-                                self.selected_note.params['x2'],
-                                self.selected_note.params['y2'])
-        self.select_note(self.selected_note.id)
+        try:
+            param = self.entry_to_param[str(event.widget)]
+            self.selected_note.set_param(param, float(event.widget.get()))
+            self.note_canvas.coords(self.selected_note.id,
+                                    self.selected_note.params['x'],
+                                    self.selected_note.params['y'],
+                                    self.selected_note.params['x2'],
+                                    self.selected_note.params['y2'])
+            self.select_note(self.selected_note.id)
+        except KeyError:
+            tk_msg.showerror("No parameter selected", "No parameter selected")
+        except AttributeError:
+            tk_msg.showerror("No note selected", "No note selected")
+
+    def update_selected_voice(self, event=None):
+        if event.widget == self.voice_name_entry:
+            self.selected_voice['name'] = self.voice_name_var.get()
+
+            new_voice_list = ""
+            for voice in self.voices:
+                new_voice_list += voice['name'] + ' '
+            self.voices_list.set(new_voice_list)
 
     def turn_note_bindings_off(self, event=None):
         self.note_bindings_on = False

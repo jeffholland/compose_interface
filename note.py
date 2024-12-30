@@ -54,6 +54,9 @@ class Note:
         self.params[key] = val
         self.recalc_coords_from_vals()
 
+    def set_voice(self, voice):
+        print(voice)
+
     def set_params(self, params):
         # expects a dictionary
         if not isinstance(params, dict):
