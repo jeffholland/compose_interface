@@ -20,11 +20,6 @@ class Application(tk.Frame):
         self.create_widgets()
         self.bind_keys()
 
-        for widget in self.grid_slaves():
-            if 'label' in str(widget) or 'entry' in str(widget):
-                widget.configure(bg=W_BG, fg=TEXT_COLOR)
-            if 'entry' in str(widget):
-                widget.configure(width=4)
 
     def create_widgets(self):
         # Top row
@@ -102,13 +97,13 @@ class Application(tk.Frame):
         self.note_canvas.bind('<Button-2>', self.right_click_canvas)
 
 
-        # Right side
+        # Right side - top half: voices
 
         self.voices_label = tk.Label(self, text="Voices", width=12)
         self.voices_label.grid(row=0, column=21, columnspan=2)
 
         self.voices_list = tk.StringVar()
-        self.voices_listbox = tk.Listbox(self, width=10, height=12, listvariable=self.voices_list, bg=NOTE_COLOR)
+        self.voices_listbox = tk.Listbox(self, width=10, height=12, listvariable=self.voices_list, bg=NOTE_COLOR, selectmode='browse')
         self.voices_listbox.grid(row=1, column=21, rowspan=8, columnspan=2)
 
         voice_str = ""
@@ -116,30 +111,73 @@ class Application(tk.Frame):
             voice_str += voice + ' '
         self.voices_list.set(voice_str)
         self.voices_listbox.selection_set(0)
-        self.selected_voice = self.voices_listbox.selection_get()
-        self.voices_listbox.bind('<<ListboxSelect>>', self.update_voice)
+        self.selected_voice = self.voices_listbox.get(0)
+        self.voices_listbox.bind('<<ListboxSelect>>', self.listbox_selected)
 
-        self.btn_add_voice = tk.Button(self, text='+', width=1, highlightbackground=W_BG)
+        self.btn_add_voice = tk.Button(self, text='+', width=1)
         self.btn_add_voice.grid(row=9, column=21)
-        self.btn_rm_voice = tk.Button(self, text='-', width=1, highlightbackground=W_BG)
+        self.btn_rm_voice = tk.Button(self, text='-', width=1)
         self.btn_rm_voice.grid(row=9, column=22)
+        self.voice_name_label = tk.Label(self, text='name')
+        self.voice_name_label.grid(row=2, column=23)
+
+        self.voice_name_var = tk.StringVar()
+        self.voice_name_entry = tk.Entry(self, textvariable=self.voice_name_var)
+        self.voice_name_entry.grid(row=2, column=24, padx=10)
+        self.voice_name_var.set(self.selected_voice)
+
+        self.o_v_label = tk.Label(self, text='o_v')
+        self.o_v_label.grid(row=3, column=23)
+        
+        self.o_v_var = tk.StringVar()
+        self.o_v_entry = tk.Entry(self, textvariable=self.o_v_var)
+        self.o_v_entry.grid(row=3, column=24, padx=10)
+        self.o_v_var.set(self.voices[self.selected_voice]['o_v'])
+
+        self.a_v_label = tk.Label(self, text='a_v')
+        self.a_v_label.grid(row=4, column=23)
+        
+        self.a_v_var = tk.StringVar()
+        self.a_v_entry = tk.Entry(self, textvariable=self.a_v_var)
+        self.a_v_entry.grid(row=4, column=24, padx=10)
+        self.a_v_var.set(self.voices[self.selected_voice]['a_v'])
+
+
+        # Right side - bottom half: parameters
 
         self.params_label = tk.Label(self, text="Params", width=12)
         self.params_label.grid(row=10, column=21, columnspan=2)
 
         self.params_list = tk.StringVar()
-        self.params_listbox = tk.Listbox(self, width=10, height=12, listvariable=self.params_list, bg=NOTE_COLOR)
+        self.params_listbox = tk.Listbox(self, width=10, height=12, listvariable=self.params_list, bg=NOTE_COLOR, selectmode='browse')
         self.params_listbox.grid(row=11, column=21, rowspan=8, columnspan=2)
+        self.params_listbox.bind('<<ListboxSelect>>', self.listbox_selected)
+
+        self.btn_add_param = tk.Button(self, text='+', width=1)
+        self.btn_add_param.grid(row=19, column=21)
+        self.btn_rm_param = tk.Button(self, text='-', width=1)
+        self.btn_rm_param.grid(row=19, column=22)
+
+        self.pm_v1_label = tk.Label(self, text='v1')
+        self.pm_v1_label.grid(row=11, column=23)
+        
+        self.pm_v1_var = tk.StringVar()
+        self.pm_v1_entry = tk.Entry(self, textvariable=self.pm_v1_var)
+        self.pm_v1_entry.grid(row=11, column=24, padx=10)
+
+        self.pm_v2_label = tk.Label(self, text='v2')
+        self.pm_v2_label.grid(row=12, column=23)
+        
+        self.pm_v2_var = tk.StringVar()
+        self.pm_v2_entry = tk.Entry(self, textvariable=self.pm_v2_var)
+        self.pm_v2_entry.grid(row=12, column=24, padx=10)
+
         self.update_voice()
 
-        self.btn_add_param = tk.Button(self, text='+', width=1, highlightbackground=W_BG)
-        self.btn_add_param.grid(row=19, column=21)
-        self.btn_rm_param = tk.Button(self, text='-', width=1, highlightbackground=W_BG)
-        self.btn_rm_param.grid(row=19, column=22)
 
         # Bottom
 
-        self.print_button = tk.Button(self, text="print", highlightbackground=W_BG, command=self.print)
+        self.print_button = tk.Button(self, text="print", command=self.print)
         self.print_button.grid(row=20, column=0, columnspan=2)
 
         self.st_label = tk.Label(self, text="st")
@@ -193,6 +231,30 @@ class Application(tk.Frame):
         self.dc_entry.grid(row=20, column=14)
         self.entry_to_param[str(self.dc_entry)] = 'dc'
 
+
+        # Mass-config widgets
+        for widget in self.grid_slaves():
+            if 'label' in str(widget) or 'entry' in str(widget):
+                widget.configure(bg=W_BG, fg=TEXT_COLOR)
+            if 'entry' in str(widget):
+                widget.configure(width=4)
+            if 'button' in str(widget):
+                widget.configure(highlightbackground=W_BG)
+
+
+    def listbox_selected(self, event):
+        # ListboxSelect is a global event called anytime any listbox is touched, thought about, or breathed on.
+        # So we have to check which widget is selected and that a selection was actually made.
+        
+        voice_selected = self.voices_listbox.curselection()
+        if event.widget == self.voices_listbox and len(voice_selected) > 0:
+            self.update_voice()
+        
+        param_selected = self.params_listbox.curselection()
+        if event.widget == self.params_listbox and len(param_selected) > 0:
+            print(f"Parameter selected: {param_selected}")
+
+
     def left_click_canvas(self, event):
         id = self.note_canvas.create_line(
             event.x, 
@@ -210,13 +272,13 @@ class Application(tk.Frame):
         self.note_bindings_on = True
 
 
-    def update_voice(self, event=None):
+    def update_voice(self):
         for note in self.notes:
             if note.voice == self.selected_voice:
                 note.hidden = True
         self.note_canvas.delete(self.selected_voice)
 
-        self.selected_voice = self.voices_listbox.selection_get()
+        self.selected_voice = self.voices_listbox.get(self.voices_listbox.curselection()[0])
 
         for note in self.notes:
             if note.voice == self.selected_voice:
@@ -230,12 +292,15 @@ class Application(tk.Frame):
                     fill=NOTE_COLOR,
                     tag=self.selected_voice)
 
-
         params_str = ""
         selected_voice = self.selected_voice
         for param in self.voices[selected_voice]['params']:
             params_str += param + ' '
         self.params_list.set(params_str)
+
+        self.voice_name_var.set(self.selected_voice)
+        self.o_v_var.set(self.voices[self.selected_voice]['o_v'])
+        self.a_v_var.set(self.voices[self.selected_voice]['a_v'])
 
 
     def deselect_all_notes(self, event=None):

@@ -2,11 +2,11 @@
     "sn1": {
         "o_v": "o1",
         "a_v": "a1",
-        "params": ["pm1", "pm2"]
+        "params": ["dt1", "fb1", "dw1", "p1"]
     },
     "sn2": {
         "o_v": "o2",
         "a_v": "a2",
-        "params": []
+        "params": ["dt2", "fb2", "dw2", "p2"]
     }
 }
