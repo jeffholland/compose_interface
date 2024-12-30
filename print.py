@@ -1,4 +1,4 @@
-
+from sys import argv
 
 def print_notes(notes, voices):
     if not isinstance(notes, list):
@@ -60,7 +60,7 @@ def print_notes(notes, voices):
                 else:
                     result += f"{pm} {v1},\n"
 
-        # if next note starts before current note ends, delay onotesy until start of next note
+        # if next note starts before current note ends, delay until start of next note
         # (start of next note overrides end of current note)
         if next_st and cursor + ln > next_st:
             result += f"/ {next_st - cursor},\n"

@@ -295,6 +295,10 @@ class Application(tk.Frame):
         self.notes.append(Note(self.selected_voice['name'], event.x, event.y, id))
 
         self.select_note(id)
+
+        for key, val in self.selected_voice['param_defaults'].items():
+            self.selected_note.set_param(key+'_1', val)
+
         self.focus() # remove focus from any entry widgets
         self.note_bindings_on = True
 
