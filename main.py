@@ -1,9 +1,16 @@
 import tkinter as tk
 
+from json import load as jsload
+
+def load_voices():
+    with open("voices.json", 'r') as f:
+        return jsload(f)
+    
 from constants import *
 from note import Note
 from print import print_notes
-from voice import load_voices
+    
+
 
 class Application(tk.Frame):
     def __init__(self, master=None):
@@ -152,25 +159,33 @@ class Application(tk.Frame):
         self.params_listbox = tk.Listbox(self, width=10, height=12, listvariable=self.params_list, bg=NOTE_COLOR, selectmode='browse')
         self.params_listbox.grid(row=11, column=21, rowspan=8, columnspan=2)
         self.params_listbox.bind('<<ListboxSelect>>', self.listbox_selected)
+        self.selected_param = None
 
         self.btn_add_param = tk.Button(self, text='+', width=1)
         self.btn_add_param.grid(row=19, column=21)
         self.btn_rm_param = tk.Button(self, text='-', width=1)
         self.btn_rm_param.grid(row=19, column=22)
 
+        self.pm_name_label = tk.Label(self, text='name')
+        self.pm_name_label.grid(row=11, column=23)
+        
+        self.pm_name_var = tk.StringVar()
+        self.pm_name_entry = tk.Entry(self, textvariable=self.pm_name_var)
+        self.pm_name_entry.grid(row=11, column=24, padx=10)
+
         self.pm_v1_label = tk.Label(self, text='v1')
-        self.pm_v1_label.grid(row=11, column=23)
+        self.pm_v1_label.grid(row=12, column=23)
         
         self.pm_v1_var = tk.StringVar()
         self.pm_v1_entry = tk.Entry(self, textvariable=self.pm_v1_var)
-        self.pm_v1_entry.grid(row=11, column=24, padx=10)
+        self.pm_v1_entry.grid(row=12, column=24, padx=10)
 
         self.pm_v2_label = tk.Label(self, text='v2')
-        self.pm_v2_label.grid(row=12, column=23)
+        self.pm_v2_label.grid(row=13, column=23)
         
         self.pm_v2_var = tk.StringVar()
         self.pm_v2_entry = tk.Entry(self, textvariable=self.pm_v2_var)
-        self.pm_v2_entry.grid(row=12, column=24, padx=10)
+        self.pm_v2_entry.grid(row=13, column=24, padx=10)
 
         self.update_voice()
 
@@ -252,7 +267,7 @@ class Application(tk.Frame):
         
         param_selected = self.params_listbox.curselection()
         if event.widget == self.params_listbox and len(param_selected) > 0:
-            print(f"Parameter selected: {param_selected}")
+            self.update_param()
 
 
     def left_click_canvas(self, event):
@@ -301,6 +316,13 @@ class Application(tk.Frame):
         self.voice_name_var.set(self.selected_voice)
         self.o_v_var.set(self.voices[self.selected_voice]['o_v'])
         self.a_v_var.set(self.voices[self.selected_voice]['a_v'])
+
+        self.params_listbox.selection_set(0)
+
+
+    def update_param(self):
+        self.selected_param = self.params_listbox.get(self.params_listbox.curselection()[0])
+        self.pm_name_var.set(self.selected_param)
 
 
     def deselect_all_notes(self, event=None):
