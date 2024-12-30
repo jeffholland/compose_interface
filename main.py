@@ -9,7 +9,7 @@ def load_voices():
 from constants import *
 from note import Note
 from print import print_notes
-    
+
 
 
 class Application(tk.Frame):
@@ -358,7 +358,7 @@ class Application(tk.Frame):
 
 
     def print(self, event=None):
-        print_notes(self.notes)
+        print_notes(self.notes, self.voices)
 
     
     def bind_keys(self):
