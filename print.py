@@ -14,23 +14,26 @@ def print_notes(notes, voices):
 
     cursor = 0
 
-    for note, next_note in zip(notes, notes[1:]):
+    for i in range(len(notes)):
 
         # Voice parameters
-        o_v = voices[note.voice]['o_v']
-        a_v = voices[note.voice]['a_v']
+        o_v = voices[notes[i].voice]['o_v']
+        a_v = voices[notes[i].voice]['a_v']
 
         # Note parameters
-        st = note.params['st']
-        next_st = next_note.params['st']
-        ln = note.params['ln']
-        p = note.params['p']
-        p2 = note.params['p2']
+        st = notes[i].params['st']
+        if i+1 < len(notes):
+            next_st = notes[i+1].params['st']
+        else:
+            next_st = None
+        ln = notes[i].params['ln']
+        p = notes[i].params['p']
+        p2 = notes[i].params['p2']
 
         # Envelope parameters
-        at = note.params['at']
-        pk = note.params['pk']
-        dc = note.params['dc']
+        at = notes[i].params['at']
+        pk = notes[i].params['pk']
+        dc = notes[i].params['dc']
 
         # Delay until start of current note
         result += f"/ {st - cursor},\n"
@@ -42,7 +45,7 @@ def print_notes(notes, voices):
 
         # if next note starts before current note ends, delay onotesy until start of next note
         # (start of next note overrides end of current note)
-        if cursor + ln > next_st:
+        if next_st and cursor + ln > next_st:
             result += f"/ {next_st - cursor},\n"
             cursor = next_st
         else:
@@ -50,7 +53,7 @@ def print_notes(notes, voices):
             cursor += ln
 
             # same logic as above, but for current note decay time
-            if cursor + dc > next_st:
+            if next_st and cursor + dc > next_st:
                 result += f"/ {next_st - cursor},\n"
                 cursor = next_st
             else:
