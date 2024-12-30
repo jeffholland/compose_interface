@@ -10,5 +10,53 @@
         "o_v": "o2",
         "a_v": "a2",
         "params": ["dt2", "fb2", "dw2", "p2"]
+    },
+    {
+        "name": "sq3",
+        "o_v": "o3",
+        "a_v": "a3",
+        "params": ["ff3", "fq3", "dt3", "fb3", "dw3", "p3"]
+    },
+    {
+        "name": "sq4",
+        "o_v": "o4",
+        "a_v": "a4",
+        "params": ["ff4", "fq4", "dt4", "fb4", "dw4", "p4"]
+    },
+    {
+        "name": "sw5",
+        "o_v": "o5",
+        "a_v": "a5",
+        "params": ["ff5", "fq5", "dt5", "fb5", "dw5", "p5"]
+    },
+    {
+        "name": "sw6",
+        "o_v": "o6",
+        "a_v": "a6",
+        "params": ["ff6", "fq6", "dt6", "fb6", "dw6", "p6"]
+    },
+    {
+        "name": "tr7",
+        "o_v": "o7",
+        "a_v": "a7",
+        "params": ["ff7", "fq7", "dt7", "fb7", "dw7", "p7"]
+    },
+    {
+        "name": "tr8",
+        "o_v": "o8",
+        "a_v": "a8",
+        "params": ["ff8", "fq8", "dt8", "fb8", "dw8", "p8"]
+    },
+    {
+        "name": "n9",
+        "o_v": "ff9",
+        "a_v": "a9",
+        "params": ["fq9", "dt9", "fb9", "dw9", "p9"]
+    },
+    {
+        "name": "n10",
+        "o_v": "ff10",
+        "a_v": "a10",
+        "params": ["fq10", "dt10", "fb10", "dw10", "p10"]
     }
 ]

@@ -343,13 +343,13 @@ class Application(tk.Frame):
         try:
             pm1 = self.selected_note.params[self.selected_param + '_1']
             self.pm_v1_var.set(pm1)
-        except KeyError or AttributeError:
+        except (KeyError, AttributeError) as e:
             self.pm_v1_var.set('')
 
         try:
             pm2 = self.selected_note.params[self.selected_param + '_2']
             self.pm_v2_var.set(pm2)
-        except KeyError or AttributeError:
+        except (KeyError, AttributeError) as e:
             self.pm_v2_var.set('')
 
 
