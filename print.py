@@ -1,126 +1,80 @@
-from sys import argv
+class Event:
+    def __init__(self, type, note, voice):
+        self.type = type
+        self.note = note
+        self.voice = voice
+
+        o_v = self.voice['o_v']
+        a_v = self.voice['a_v']
+
+        self.line = ""
+
+        if self.type == "start":
+            self.time = self.note.params['st']
+
+            p = self.note.params['p']
+            p2 = self.note.params['p2']
+            ln = self.note.params['ln']
+            pk = self.note.params['pk']
+            at = self.note.params['at']
+            self.line += f"{o_v} {p} {p2} {ln},\n"
+            self.line += f"{a_v} {pk} {at},\n"
+
+            for key, v1 in self.note.params.items():
+                # add'l parameters have suffix _1 and _2 appended
+                if key[-2:] == '_1':
+                    pm = key[:-2]
+
+                    if pm + '_2' in self.note.params:
+                        v2 = self.note.params[pm + '_2']
+                        self.line += f"{pm} {v1} {v2} {ln},\n"
+                    else:
+                        self.line += f"{pm} {v1},\n"
+        else:
+            self.time = self.note.params['en']
+            dc = self.note.params['dc']
+
+            self.time = self.note.params['en']
+            self.line += f"{a_v} 0 {dc},\n"
+
 
 def print_notes(notes, voices):
-    if not isinstance(notes, list):
-        raise TypeError("passed non-list to print_notes in print.py")
+    events = []
 
-    result = ""
-
-    # Sort notes by start time
-    
-    notes = sorted(notes, key=lambda note: note.params['st'])
-
-    # Write notes to result, traversing notes using a cursor (or "playhead")
-    # Track "unfinished" notes in a list to make sure all notes get finished
-
-    cursor = 0
-    unfinished = []
-
-    for i in range(len(notes)):
-        if "--debug" in argv:
-            result += f"--begin iteration {i},\n"
-
-        # Voice parameters
+    for note in notes:
+        # Create start events
         for voice in voices:
-            if notes[i].voice == voice['name']:
-                o_v = voice['o_v']
-                a_v = voice['a_v']
+            if voice['name'] == note.voice:
+                events.append(Event("start", note, voice))
+                events.append(Event("end", note, voice))
+                break
 
-        # Note parameters
-        st = notes[i].params['st']
-        if i+1 < len(notes):
-            next_st = notes[i+1].params['st']
+    # Sort by event time
+    events = sorted(events, key=lambda event: event.time)
+
+    # Traverse events, adding gaps in between notes
+    result = ""
+    cursor = 0
+    voice_current_note_id = dict()
+
+    for event in events:
+        # Track current note id of each voice
+        if event.type == "start":
+            voice_current_note_id[event.voice["name"]] = event.note.id
         else:
-            next_st = None
-        ln = notes[i].params['ln']
-        p = notes[i].params['p']
-        p2 = notes[i].params['p2']
+            # skip end event if not current note (so old notes don't cut off new notes)
+            if voice_current_note_id[event.voice["name"]] != event.note.id:
+                continue
 
-        # Envelope parameters
-        at = notes[i].params['at']
-        pk = notes[i].params['pk']
-        dc = notes[i].params['dc']
+        # Delay event if necessary
+        if event.time > cursor:
+            delay = event.time - cursor
+            result += f"/ {delay},\n"
+            cursor = event.time
+        
+        # Write line
+        result += event.line
 
-        # finish unfinished notes
-        for u_note in unfinished:
-            if '--debug' in argv:
-                result += f'--traversing {len(unfinished)} unfinished notes - cursor at {cursor},\n'
-            u_en = u_note.params['en']
-            u_dc = u_note.params['dc']
-            u_a_v = next((voice['a_v'] for voice in voices if voice['name'] == u_note.voice), None)
-
-            if not next_st or next_st > u_en:
-                result += f"/ {u_en - cursor},\n"
-                cursor = u_en
-                result += f"{u_a_v} 0 {u_dc},\n"
-                if '--debug' in argv:
-                    result += f'--unfinished note ends - cursor at {cursor},\n'
-
-                if not next_st:
-                    result += f"/ {u_dc},\n"
-                    cursor += u_dc
-                    if '--debug' in argv:
-                        result += f'--final note decays - cursor at {cursor},\n'
-                
-                unfinished.remove(u_note)
-
-        if '--debug' in argv:
-            result += f'--start of note {i} - cursor at {cursor},\n'
-
-        # Delay until start of current note
-        if st > cursor:
-            result += f"/ {st - cursor},\n"
-            cursor = st
-
-            if '--debug' in argv:
-                result += f'--delayed note {i} - cursor at {cursor},\n'
-
-        # Write note attack
-        result += f"{o_v} {p} {p2} {ln},\n"
-        result += f"{a_v} {pk} {at},\n"
-
-        # Write additional note parameters
-        for key, v1 in notes[i].params.items():
-            # add'l parameters have suffix _1 and _2 appended
-            if key[-2:] == '_1':
-                pm = key[:-2]
-
-                if pm + '_2' in notes[i].params:
-                    v2 = notes[i].params[pm + '_2']
-                    result += f"{pm} {v1} {v2} {ln},\n"
-                else:
-                    result += f"{pm} {v1},\n"
-
-        # if next note starts before current note ends, delay until start of next note
-        # (start of next note overrides end of current note)
-        if next_st and cursor + ln > next_st:
-            result += f"/ {next_st - cursor},\n"
-            cursor = next_st
-            if '--debug' in argv:
-                result += f'--note {i+1} starting before note {i} ends - cursor at {cursor},\n'
-
-            unfinished.append(notes[i])
-        else:
-            result += f"/ {ln},\n"
-            cursor += ln
-            if '--debug' in argv:
-                result += f'--note {i} ends - cursor at {cursor},\n'
-
-            # same logic as above, but for current note decay time
-            if next_st and cursor + dc > next_st:
-                result += f"/ {next_st - cursor},\n"
-                cursor = next_st
-                if '--debug' in argv:
-                    result += f'--note {i+1} starting before note {i} decays - cursor at {cursor},\n'
-            else:
-                result += f"{a_v} 0 {dc},\n"
-                result += f"/ {dc},\n"
-                cursor += dc
-                if '--debug' in argv:
-                    result += f'--note {i} decays - cursor at {cursor},\n'
-
-
-    # Write result to file
     outfilename = "./pd/read/result.txt"
     with open(outfilename, "w") as f:
         f.write(result)
