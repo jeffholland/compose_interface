@@ -17,6 +17,8 @@ def print_notes(notes, voices):
     unfinished = []
 
     for i in range(len(notes)):
+        if "--debug" in argv:
+            result += f"--begin iteration {i},\n"
 
         # Voice parameters
         for voice in voices:
@@ -39,10 +41,39 @@ def print_notes(notes, voices):
         pk = notes[i].params['pk']
         dc = notes[i].params['dc']
 
+        # finish unfinished notes
+        for u_note in unfinished:
+            if '--debug' in argv:
+                result += f'--traversing {len(unfinished)} unfinished notes - cursor at {cursor},\n'
+            u_en = u_note.params['en']
+            u_dc = u_note.params['dc']
+            u_a_v = next((voice['a_v'] for voice in voices if voice['name'] == u_note.voice), None)
+
+            if not next_st or next_st > u_en:
+                result += f"/ {u_en - cursor},\n"
+                cursor = u_en
+                result += f"{u_a_v} 0 {u_dc},\n"
+                if '--debug' in argv:
+                    result += f'--unfinished note ends - cursor at {cursor},\n'
+
+                if not next_st:
+                    result += f"/ {u_dc},\n"
+                    cursor += u_dc
+                    if '--debug' in argv:
+                        result += f'--final note decays - cursor at {cursor},\n'
+                
+                unfinished.remove(u_note)
+
+        if '--debug' in argv:
+            result += f'--start of note {i} - cursor at {cursor},\n'
+
         # Delay until start of current note
         if st > cursor:
             result += f"/ {st - cursor},\n"
             cursor = st
+
+            if '--debug' in argv:
+                result += f'--delayed note {i} - cursor at {cursor},\n'
 
         # Write note attack
         result += f"{o_v} {p} {p2} {ln},\n"
@@ -65,36 +96,28 @@ def print_notes(notes, voices):
         if next_st and cursor + ln > next_st:
             result += f"/ {next_st - cursor},\n"
             cursor = next_st
+            if '--debug' in argv:
+                result += f'--note {i+1} starting before note {i} ends - cursor at {cursor},\n'
 
             unfinished.append(notes[i])
         else:
             result += f"/ {ln},\n"
             cursor += ln
+            if '--debug' in argv:
+                result += f'--note {i} ends - cursor at {cursor},\n'
 
             # same logic as above, but for current note decay time
             if next_st and cursor + dc > next_st:
                 result += f"/ {next_st - cursor},\n"
                 cursor = next_st
+                if '--debug' in argv:
+                    result += f'--note {i+1} starting before note {i} decays - cursor at {cursor},\n'
             else:
                 result += f"{a_v} 0 {dc},\n"
                 result += f"/ {dc},\n"
                 cursor += dc
-
-        # finish unfinished notes
-        for u_note in unfinished:
-            u_en = u_note.params['en']
-            u_dc = u_note.params['dc']
-            u_a_v = next((voice['a_v'] for voice in voices if voice['name'] == u_note.voice), None)
-
-            if not next_st or next_st > u_en:
-                result += f"/ {u_en - cursor},\n"
-                cursor = u_en
-                result += f"{u_a_v} 0 {u_dc},\n"
-
-                if not next_st:
-                    result += f"/ {u_dc},\n"
-                
-                unfinished.remove(u_note)
+                if '--debug' in argv:
+                    result += f'--note {i} decays - cursor at {cursor},\n'
 
 
     # Write result to file
