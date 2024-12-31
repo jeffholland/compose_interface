@@ -376,7 +376,23 @@ class Application(tk.Frame):
         self.ln_var.set(str(self.selected_note.params['ln']))
         self.p_var.set(str(self.selected_note.params['p']))
         self.p2_var.set(str(self.selected_note.params['p2']))
+
         self.set_fq_vars()
+
+        self.at_var.set(str(self.selected_note.params['at']))
+        self.pk_var.set(str(self.selected_note.params['pk']))
+        self.dc_var.set(str(self.selected_note.params['dc']))
+
+        try:
+            pm1 = self.selected_note.params[self.selected_param + '_1']
+            self.pm_v1_var.set(pm1)
+        except (KeyError, AttributeError, TypeError) as e:
+            self.pm_v1_var.set('')
+        try:
+            pm2 = self.selected_note.params[self.selected_param + '_2']
+            self.pm_v2_var.set(pm2)
+        except (KeyError, AttributeError, TypeError) as e:
+            self.pm_v2_var.set('')
         
     def right_click_canvas(self, event):
         self.focus()

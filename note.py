@@ -24,6 +24,7 @@ class Note:
         self.recalc_vals_from_coords()
 
     def recalc_vals_from_coords(self):
+        self.size = self.params['x2'] - self.params['x']
         self.params['st'] = (self.params['x'] / CANV_WIDTH) * TIME_LENGTH
         self.params['en'] = ((self.params['x'] + self.size)/ CANV_WIDTH) * TIME_LENGTH
         self.params['ln'] = self.params['en'] - self.params['st']
@@ -53,9 +54,6 @@ class Note:
 
         self.params[key] = val
         self.recalc_coords_from_vals()
-
-    def set_voice(self, voice):
-        print(voice)
 
     def set_params(self, params):
         # expects a dictionary
