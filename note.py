@@ -39,13 +39,13 @@ class Note:
         self.params['y'] = CANV_HEIGHT - ((self.params['p'] / PITCH_RANGE) * CANV_HEIGHT)
         self.params['y2'] = CANV_HEIGHT - ((self.params['p2'] / PITCH_RANGE) * CANV_HEIGHT)
 
-    def xsnap(self):
-        self.params['st'] = round(self.params['st'])
+    def xsnap(self, amt):
+        self.params['st'] = round(self.params['st'] / amt) * amt
         self.params['en'] = self.params['st'] + self.params['ln']
         self.recalc_coords_from_vals()
 
-    def ysnap(self):
-        self.params['p'] = round(self.params['p'])
+    def ysnap(self, amt):
+        self.params['p'] = round(self.params['p'] / amt) * amt
         self.params['p2'] = self.params['p']
         self.recalc_coords_from_vals()
 

@@ -75,6 +75,9 @@ def print_notes(notes, voices):
         # Write line
         result += event.line
 
+    # Leave time to decay last note
+    result += f"/ {events[-1].note.params['dc']},\n"
+
     outfilename = "./pd/read/result.txt"
     with open(outfilename, "w") as f:
         f.write(result)

@@ -37,36 +37,46 @@ class Application(tk.Frame):
                                         fg=TEXT_COLOR, bg=W_BG)
         self.xsnap_toggle.grid(row=0, column=0)
 
+        self.xsnap_entry_var = tk.StringVar(self)
+        self.xsnap_entry = tk.Entry(self, textvariable=self.xsnap_entry_var)
+        self.xsnap_entry.grid(row=0, column=1)
+        self.xsnap_entry_var.set(0.25)
+
         self.ysnap_toggle_var = tk.IntVar(self)
         self.ysnap_toggle = tk.Checkbutton(self, text='y', variable=self.ysnap_toggle_var, 
                                         fg=TEXT_COLOR, bg=W_BG)
-        self.ysnap_toggle.grid(row=0, column=1)
+        self.ysnap_toggle.grid(row=0, column=2)
+
+        self.ysnap_entry_var = tk.StringVar(self)
+        self.ysnap_entry = tk.Entry(self, textvariable=self.ysnap_entry_var)
+        self.ysnap_entry.grid(row=0, column=3)
+        self.ysnap_entry_var.set(1.0)
 
         self.f1_label = tk.Label(self, text="f1")
-        self.f1_label.grid(row=0, column=3)
+        self.f1_label.grid(row=0, column=4)
 
         self.f1_var = tk.StringVar()
         self.f1_entry = tk.Entry(self, textvariable=self.f1_var)
         self.f1_var.set(2)
-        self.f1_entry.grid(row=0, column=4, pady=10)
+        self.f1_entry.grid(row=0, column=5, pady=10)
         self.entry_to_param[str(self.f1_entry)] = 'f1'
 
         self.f2_label = tk.Label(self, text="f2")
-        self.f2_label.grid(row=0, column=5)
+        self.f2_label.grid(row=0, column=6)
 
         self.f2_var = tk.StringVar()
         self.f2_entry = tk.Entry(self, textvariable=self.f2_var)
         self.f2_var.set(12)
-        self.f2_entry.grid(row=0, column=6, pady=10)
+        self.f2_entry.grid(row=0, column=7, pady=10)
         self.entry_to_param[str(self.f2_entry)] = 'f2'
 
         self.f3_label = tk.Label(self, text="f3")
-        self.f3_label.grid(row=0, column=7)
+        self.f3_label.grid(row=0, column=8)
 
         self.f3_var = tk.StringVar()
         self.f3_entry = tk.Entry(self, textvariable=self.f3_var)
         self.f3_var.set(440)
-        self.f3_entry.grid(row=0, column=8, pady=10)
+        self.f3_entry.grid(row=0, column=9, pady=10)
         self.entry_to_param[str(self.f3_entry)] = 'f3'
 
 
@@ -307,11 +317,14 @@ class Application(tk.Frame):
         self.notes.append(Note(self.selected_voice['name'], event.x, event.y, id))
 
         note = self.notes[-1]
+
         if self.xsnap_toggle_var.get() != 0:
-            note.xsnap()
+            round_amt = float(self.xsnap_entry_var.get())
+            note.xsnap(round_amt)
             self.note_canvas.coords(note.id, note.params['x'], note.params['y'], note.params['x2'], note.params['y2'])
         if self.ysnap_toggle_var.get() != 0:
-            note.ysnap()
+            round_amt = float(self.ysnap_entry_var.get())
+            note.ysnap(round_amt)
             self.note_canvas.coords(note.id, note.params['x'], note.params['y'], note.params['x2'], note.params['y2'])
 
         self.select_note(id)

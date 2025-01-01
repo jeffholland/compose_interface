@@ -2,7 +2,7 @@
 #X obj 29 31 bng 19 250 50 0 start_out start_in start 0 -10 0 12 #fcfcfc #000000 #000000;
 #X obj 29 74 tgl 19 0 loop empty loop 0 -10 0 12 #fcfcfc #000000 #000000 0 1;
 #X floatatom 157 73 5 0 0 0 tempo - tempo 0;
-#N canvas 763 423 466 294 out 0;
+#N canvas 763 423 466 294 out 1;
 #X obj 31 37 catch~ outL;
 #X obj 170 33 catch~ outR;
 #X msg 293 230 stop;
@@ -19,7 +19,7 @@
 #X obj 84 132 line~;
 #X obj 171 180 *~;
 #X obj 66 223 dac~;
-#X msg 249 167 open out/ci-8.wav \, start;
+#X msg 249 167 open out/ci-9.wav \, start;
 #X connect 0 0 3 0;
 #X connect 0 0 10 0;
 #X connect 1 0 3 1;
