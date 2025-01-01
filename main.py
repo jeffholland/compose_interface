@@ -31,6 +31,17 @@ class Application(tk.Frame):
 
     def create_widgets(self):
         # Top row
+
+        self.xsnap_toggle_var = tk.IntVar(self)
+        self.xsnap_toggle = tk.Checkbutton(self, text='x', variable=self.xsnap_toggle_var, 
+                                        fg=TEXT_COLOR, bg=W_BG)
+        self.xsnap_toggle.grid(row=0, column=0)
+
+        self.ysnap_toggle_var = tk.IntVar(self)
+        self.ysnap_toggle = tk.Checkbutton(self, text='y', variable=self.ysnap_toggle_var, 
+                                        fg=TEXT_COLOR, bg=W_BG)
+        self.ysnap_toggle.grid(row=0, column=1)
+
         self.f1_label = tk.Label(self, text="f1")
         self.f1_label.grid(row=0, column=3)
 
@@ -283,6 +294,7 @@ class Application(tk.Frame):
 
 
     def left_click_canvas(self, event):
+
         id = self.note_canvas.create_line(
             event.x, 
             event.y, 
@@ -293,6 +305,14 @@ class Application(tk.Frame):
             tag=self.selected_voice['name'])
 
         self.notes.append(Note(self.selected_voice['name'], event.x, event.y, id))
+
+        note = self.notes[-1]
+        if self.xsnap_toggle_var.get() != 0:
+            note.xsnap()
+            self.note_canvas.coords(note.id, note.params['x'], note.params['y'], note.params['x2'], note.params['y2'])
+        if self.ysnap_toggle_var.get() != 0:
+            note.ysnap()
+            self.note_canvas.coords(note.id, note.params['x'], note.params['y'], note.params['x2'], note.params['y2'])
 
         self.select_note(id)
 

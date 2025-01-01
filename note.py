@@ -34,9 +34,20 @@ class Note:
     def recalc_coords_from_vals(self):
         self.params['x'] = (self.params['st'] / TIME_LENGTH) * CANV_WIDTH
         self.params['x2'] = (self.params['en'] / TIME_LENGTH) * CANV_WIDTH
+        self.size = self.params['x2'] - self.params['x']
         self.params['ln'] = self.params['en'] - self.params['st']
         self.params['y'] = CANV_HEIGHT - ((self.params['p'] / PITCH_RANGE) * CANV_HEIGHT)
         self.params['y2'] = CANV_HEIGHT - ((self.params['p2'] / PITCH_RANGE) * CANV_HEIGHT)
+
+    def xsnap(self):
+        self.params['st'] = round(self.params['st'])
+        self.params['en'] = self.params['st'] + self.params['ln']
+        self.recalc_coords_from_vals()
+
+    def ysnap(self):
+        self.params['p'] = round(self.params['p'])
+        self.params['p2'] = self.params['p']
+        self.recalc_coords_from_vals()
 
     def set_param(self, key, val):
         # params dependent on other params
