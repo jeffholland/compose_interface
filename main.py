@@ -322,7 +322,8 @@ class Application(tk.Frame):
                 if isinstance(obj, tk.Entry):
                     if str(obj) in self.entry_to_param:
                         if len(obj.get()) > 0:
-                            note.set_param(self.entry_to_param[str(obj)], float(obj.get()))
+                            key = self.entry_to_param[str(obj)]
+                            note.set_param(key, float(obj.get()), pitch_dependent=False)
 
         id = self.note_canvas.create_line(note.params['x'], note.params['y'], note.params['x2'], note.params['y2'], 
             width=NOTE_HEIGHT, fill=NOTE_COLOR, tag=note.voice)
@@ -446,8 +447,7 @@ class Application(tk.Frame):
         self.focus()
         self.note_bindings_on = True
         for note in self.notes:
-            if (event.x >= note.params['x'] and event.x <= note.params['x'] + note.size and
-                event.y >= note.params['y'] and event.y <= note.params['y'] + NOTE_HEIGHT):
+            if note.in_bounds(event.x, event.y):
                 self.select_note(note.id)
                 return
         self.deselect_all_notes()
@@ -531,7 +531,7 @@ class Application(tk.Frame):
         for note in self.notes:
             self.note_canvas.delete(note.id)
         self.notes.clear()
-        self.selected_note = None
+        self.deselect_all_notes()
 
     def move_selected_note(self, direction):
         xmove = 0

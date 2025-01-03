@@ -49,8 +49,8 @@ class Note:
         self.params['p2'] = self.params['p']
         self.recalc_coords_from_vals()
 
-    def set_param(self, key, val):
-        # params dependent on other params
+    def set_param(self, key, val, pitch_dependent=True):
+        # params depend on other params
         if key in ['p', 'p2', 'st', 'en', 'ln']:
             diff = val - self.params[key]
 
@@ -60,7 +60,7 @@ class Note:
                 self.params['ln'] += diff
             if key == 'ln':
                 self.params['en'] += diff
-            if key == 'p':
+            if key == 'p' and pitch_dependent:
                 self.params['p2'] += diff
 
         self.params[key] = val
@@ -89,3 +89,9 @@ class Note:
     def tilt(self, tilt_amount):
         self.params['y2'] += tilt_amount
         self.recalc_vals_from_coords()
+
+    def in_bounds(self, x, y):
+        min_x, max_x = min(self.params['x'], self.params['x2']), max(self.params['x'], self.params['x2'])
+        min_y, max_y = min(self.params['y'], self.params['y2']), max(self.params['y'], self.params['y2'])
+        
+        return min_x <= x <= max_x and min_y <= y <= max_y
