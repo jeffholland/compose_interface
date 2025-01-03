@@ -316,30 +316,13 @@ class Application(tk.Frame):
         
         note = Note(self.selected_voice['name'], event.x, event.y)
 
-        # # If no selected note, use entered values if any
-        # set_pitch = None
-        # if self.selected_note == None:
-        #     if len(self.p_var.get()) > 0:
-        #         set_pitch = float(self.p_var.get())
-        #         note.params['p'] = set_pitch
-        #         note.recalc_coords_from_vals()
-            
-        #         try: 
-        #             set_fq = float(self.fq_var.get())
-        #             note.params['p'] = f_to_p(set_fq)
-        #             note.recalc_coords_from_vals()
-        #         except: pass
-
-        #     try: 
-        #         set_pitch2 = float(self.p2_var.get())
-        #         note.params['p2'] = set_pitch2
-        #         note.recalc_coords_from_vals()
-        #     except:
-        #         try: 
-        #             set_fq2 = float(self.fq2_var.get())
-        #             note.params['p2'] = f_to_p(set_fq2)
-        #             note.recalc_coords_from_vals()
-        #         except: pass
+        # no selected note? then set note params to specified
+        if self.selected_note == None:
+            for obj in self.grid_slaves():
+                if isinstance(obj, tk.Entry):
+                    if str(obj) in self.entry_to_param:
+                        if len(obj.get()) > 0:
+                            note.set_param(self.entry_to_param[str(obj)], float(obj.get()))
 
         id = self.note_canvas.create_line(note.params['x'], note.params['y'], note.params['x2'], note.params['y2'], 
             width=NOTE_HEIGHT, fill=NOTE_COLOR, tag=note.voice)
@@ -492,7 +475,7 @@ class Application(tk.Frame):
                     obj.bind('<Key-Return>', self.update_selected_note)
 
     def update_selected_note(self, event=None):
-        try:
+        if self.selected_note != None and str(event.widget) in self.entry_to_param:
             param = self.entry_to_param[str(event.widget)]
             self.selected_note.set_param(param, float(event.widget.get()))
             self.note_canvas.coords(self.selected_note.id,
@@ -501,10 +484,6 @@ class Application(tk.Frame):
                                     self.selected_note.params['x2'],
                                     self.selected_note.params['y2'])
             self.select_note(self.selected_note.id)
-        except KeyError:
-            tk_msg.showerror("No parameter selected", "No parameter selected")
-        except AttributeError:
-            tk_msg.showerror("No note selected", "No note selected")
 
     def update_selected_voice(self, event=None):
         if event.widget == self.voice_name_entry:
