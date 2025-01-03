@@ -10,7 +10,7 @@ def load_voices():
 from constants import *
 from note import Note
 from print import print_notes
-
+from convert import p_to_f, f_to_p
 
 
 class Application(tk.Frame):
@@ -82,12 +82,14 @@ class Application(tk.Frame):
 
         # Left side
 
+        self.dependent_vars = [] # variables dependent on x and y axis
+
         self.p_label = tk.Label(self, text="p")
         self.p_label.grid(row=2, column=0, padx=4)
 
         self.p_var = tk.StringVar()
+        self.dependent_vars.append(self.p_var)
         self.p_entry = tk.Entry(self, textvariable=self.p_var)
-        self.p_var.set(48)
         self.p_entry.grid(row=2, column=1, padx=10)
         self.entry_to_param[str(self.p_entry)] = 'p'
 
@@ -95,6 +97,7 @@ class Application(tk.Frame):
         self.fq_label.grid(row=3, column=0, padx=4)
 
         self.fq_var = tk.StringVar()
+        self.dependent_vars.append(self.fq_var)
         self.fq_entry = tk.Entry(self, textvariable=self.fq_var)
         self.fq_entry.grid(row=3, column=1, padx=10)
         self.entry_to_param[str(self.fq_entry)] = 'fq'
@@ -103,8 +106,8 @@ class Application(tk.Frame):
         self.p2_label.grid(row=4, column=0, padx=4)
 
         self.p2_var = tk.StringVar()
+        self.dependent_vars.append(self.p2_var)
         self.p2_entry = tk.Entry(self, textvariable=self.p2_var)
-        self.p2_var.set(48)
         self.p2_entry.grid(row=4, column=1, padx=10)
         self.entry_to_param[str(self.p2_entry)] = 'p2'
 
@@ -112,10 +115,10 @@ class Application(tk.Frame):
         self.fq2_label.grid(row=5, column=0, padx=4)
 
         self.fq2_var = tk.StringVar()
+        self.dependent_vars.append(self.fq2_var)
         self.fq2_entry = tk.Entry(self, textvariable=self.fq2_var)
         self.fq2_entry.grid(row=5, column=1, padx=10)
         self.entry_to_param[str(self.fq2_entry)] = 'fq2'
-        self.set_fq_vars()
 
 
         # Canvas
@@ -135,6 +138,7 @@ class Application(tk.Frame):
         self.st_label.grid(row=20, column=3)
 
         self.st_var = tk.StringVar()
+        self.dependent_vars.append(self.st_var)
         self.st_entry = tk.Entry(self, textvariable=self.st_var)
         self.st_entry.grid(row=20, column=4, pady=10)
         self.entry_to_param[str(self.st_entry)] = 'st'
@@ -143,6 +147,7 @@ class Application(tk.Frame):
         self.en_label.grid(row=20, column=5)
 
         self.en_var = tk.StringVar()
+        self.dependent_vars.append(self.en_var)
         self.en_entry = tk.Entry(self, textvariable=self.en_var)
         self.en_entry.grid(row=20, column=6, pady=10)
         self.entry_to_param[str(self.en_entry)] = 'en'
@@ -151,9 +156,13 @@ class Application(tk.Frame):
         self.ln_label.grid(row=20, column=7)
 
         self.ln_var = tk.StringVar()
+        self.dependent_vars.append(self.ln_var)
         self.ln_entry = tk.Entry(self, textvariable=self.ln_var)
         self.ln_entry.grid(row=20, column=8, pady=10)
         self.entry_to_param[str(self.ln_entry)] = 'ln'
+
+        default_length = (NOTE_SIZE / CANV_WIDTH) * TIME_LENGTH
+        self.ln_var.set(default_length)
 
         self.at_label = tk.Label(self, text='at')
         self.at_label.grid(row=20, column=9)
@@ -304,19 +313,37 @@ class Application(tk.Frame):
 
 
     def left_click_canvas(self, event):
+        
+        note = Note(self.selected_voice['name'], event.x, event.y)
 
-        id = self.note_canvas.create_line(
-            event.x, 
-            event.y, 
-            event.x + NOTE_SIZE, 
-            event.y, 
-            width=NOTE_HEIGHT, 
-            fill=NOTE_COLOR,
-            tag=self.selected_voice['name'])
+        # # If no selected note, use entered values if any
+        # set_pitch = None
+        # if self.selected_note == None:
+        #     if len(self.p_var.get()) > 0:
+        #         set_pitch = float(self.p_var.get())
+        #         note.params['p'] = set_pitch
+        #         note.recalc_coords_from_vals()
+            
+        #         try: 
+        #             set_fq = float(self.fq_var.get())
+        #             note.params['p'] = f_to_p(set_fq)
+        #             note.recalc_coords_from_vals()
+        #         except: pass
 
-        self.notes.append(Note(self.selected_voice['name'], event.x, event.y, id))
+        #     try: 
+        #         set_pitch2 = float(self.p2_var.get())
+        #         note.params['p2'] = set_pitch2
+        #         note.recalc_coords_from_vals()
+        #     except:
+        #         try: 
+        #             set_fq2 = float(self.fq2_var.get())
+        #             note.params['p2'] = f_to_p(set_fq2)
+        #             note.recalc_coords_from_vals()
+        #         except: pass
 
-        note = self.notes[-1]
+        id = self.note_canvas.create_line(note.params['x'], note.params['y'], note.params['x2'], note.params['y2'], 
+            width=NOTE_HEIGHT, fill=NOTE_COLOR, tag=note.voice)
+        note.id = id
 
         if self.xsnap_toggle_var.get() != 0:
             round_amt = float(self.xsnap_entry_var.get())
@@ -326,6 +353,8 @@ class Application(tk.Frame):
             round_amt = float(self.ysnap_entry_var.get())
             note.ysnap(round_amt)
             self.note_canvas.coords(note.id, note.params['x'], note.params['y'], note.params['x2'], note.params['y2'])
+
+        self.notes.append(note)
 
         self.select_note(id)
 
@@ -392,6 +421,9 @@ class Application(tk.Frame):
 
     def deselect_all_notes(self, event=None):
         self.selected_note = None
+
+        for var in self.dependent_vars:
+            var.set('')
 
         all_notes = self.note_canvas.find_all()
         for note in all_notes:
@@ -579,8 +611,8 @@ class Application(tk.Frame):
         f2 = float(self.f2_var.get())
         f3 = float(self.f3_var.get())
 
-        fq1 = pow(f1, ((pitch - 69) / f2)) * f3
-        fq2 = pow(f1, ((pitch2 - 69) / f2)) * f3
+        fq1 = p_to_f(pitch, f1, f2, f3)
+        fq2 = p_to_f(pitch2, f1, f2, f3)
         self.fq_var.set(fq1)
         self.fq2_var.set(fq2)
 

@@ -2,7 +2,7 @@ from constants import *
 import math
 
 class Note:
-    def __init__(self, voice, x, y, id, size=NOTE_SIZE):
+    def __init__(self, voice, x, y, id=None, size=NOTE_SIZE):
         self.id = id
         self.size = size
 

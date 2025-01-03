@@ -1,0 +1,136 @@
+[
+    {
+        "name": "sn1",
+        "o_v": "o1",
+        "a_v": "a1",
+        "params": ["dt1", "fb1", "dw1", "p1"],
+        "param_defaults": {
+            "dt1": 100,
+            "fb1": 0.5,
+            "dw1": 0.0,
+            "p1": 0.5
+        }
+    },
+    {
+        "name": "sn2",
+        "o_v": "o2",
+        "a_v": "a2",
+        "params": ["dt2", "fb2", "dw2", "p2"],
+        "param_defaults": {
+            "dt2": 100,
+            "fb2": 0.5,
+            "dw2": 0.0,
+            "p2": 0.5
+        }
+    },
+    {
+        "name": "sq3",
+        "o_v": "o3",
+        "a_v": "a3",
+        "params": ["ff3", "fq3", "dt3", "fb3", "dw3", "p3"],
+        "param_defaults": {
+            "ff3": 1000,
+            "fq3": 3,
+            "dt3": 100,
+            "fb3": 0.5,
+            "dw3": 0.0,
+            "p3": 0.4
+        }
+    },
+    {
+        "name": "sq4",
+        "o_v": "o4",
+        "a_v": "a4",
+        "params": ["ff4", "fq4", "dt4", "fb4", "dw4", "p4"],
+        "param_defaults": {
+            "ff4": 800,
+            "fq4": 4,
+            "dt4": 100,
+            "fb4": 0.5,
+            "dw4": 0.0,
+            "p4": 0.6
+        }
+    },
+    {
+        "name": "sw5",
+        "o_v": "o5",
+        "a_v": "a5",
+        "params": ["ff5", "fq5", "dt5", "fb5", "dw5", "p5"],
+        "param_defaults": {
+            "ff5": 2000,
+            "fq5": 5,
+            "dt5": 100,
+            "fb5": 0.5,
+            "dw5": 0.0,
+            "p5": 0.3
+        }
+    },
+    {
+        "name": "sw6",
+        "o_v": "o6",
+        "a_v": "a6",
+        "params": ["ff6", "fq6", "dt6", "fb6", "dw6", "p6"],
+        "param_defaults": {
+            "ff6": 2500,
+            "fq6": 6,
+            "dt6": 100,
+            "fb6": 0.5,
+            "dw6": 0.0,
+            "p6": 0.7
+        }
+    },
+    {
+        "name": "tr7",
+        "o_v": "o7",
+        "a_v": "a7",
+        "params": ["ff7", "fq7", "dt7", "fb7", "dw7", "p7"],
+        "param_defaults": {
+            "ff7": 3000,
+            "fq7": 7,
+            "dt7": 100,
+            "fb7": 0.5,
+            "dw7": 0.0,
+            "p7": 0.2
+        }
+    },
+    {
+        "name": "tr8",
+        "o_v": "o8",
+        "a_v": "a8",
+        "params": ["ff8", "fq8", "dt8", "fb8", "dw8", "p8"],
+        "param_defaults": {
+            "ff8": 3500,
+            "fq8": 8,
+            "dt8": 100,
+            "fb8": 0.5,
+            "dw8": 0.0,
+            "p8": 0.8
+        }
+    },
+    {
+        "name": "n9",
+        "o_v": "ff9",
+        "a_v": "a9",
+        "params": ["fq9", "dt9", "fb9", "dw9", "p9"],
+        "param_defaults": {
+            "fq9": 9,
+            "dt9": 100,
+            "fb9": 0.5,
+            "dw9": 0.0,
+            "p9": 0.1
+        }
+    },
+    {
+        "name": "n10",
+        "o_v": "ff10",
+        "a_v": "a10",
+        "params": ["fq10", "dt10", "fb10", "dw10", "p10"],
+        "param_defaults": {
+            "fq10": 10,
+            "dt10": 100,
+            "fb10": 0.5,
+            "dw10": 0.0,
+            "p10": 0.9
+        }
+    }
+]
