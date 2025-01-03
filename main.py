@@ -10,7 +10,7 @@ def load_voices():
 from constants import *
 from note import Note
 from print import print_notes
-from convert import p_to_f, f_to_p
+from convert import p_to_f
 
 
 class Application(tk.Frame):

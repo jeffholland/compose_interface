@@ -92,6 +92,6 @@ class Note:
 
     def in_bounds(self, x, y):
         min_x, max_x = min(self.params['x'], self.params['x2']), max(self.params['x'], self.params['x2'])
-        min_y, max_y = min(self.params['y'], self.params['y2']), max(self.params['y'], self.params['y2'])
+        min_y, max_y = min(self.params['y'], self.params['y2'] + NOTE_HEIGHT), max(self.params['y'], self.params['y2'] + NOTE_HEIGHT)
         
         return min_x <= x <= max_x and min_y <= y <= max_y
