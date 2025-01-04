@@ -1,5 +1,4 @@
 from constants import *
-import math
 
 class Note:
     def __init__(self, voice, x, y, id=None, size=NOTE_SIZE):
@@ -95,3 +94,6 @@ class Note:
         min_y, max_y = min(self.params['y'], self.params['y2'] + NOTE_HEIGHT), max(self.params['y'], self.params['y2'] + NOTE_HEIGHT)
         
         return min_x <= x <= max_x and min_y <= y <= max_y
+    
+def length_to_size(length):
+    return (length / TIME_LENGTH) * CANV_WIDTH

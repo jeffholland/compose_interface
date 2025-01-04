@@ -27,4 +27,4 @@ ROUND_DIGITS = 2
 # file paths
 
 VOICES_PATH = './json/voices.json'
-OUTPUT_PATH = './read/result.txt'
+OUTPUT_PATH = './pd/read/result.txt'

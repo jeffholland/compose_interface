@@ -8,7 +8,7 @@ def load_voices():
         return jsload(f)
     
 from constants import *
-from note import Note
+from note import *
 from print import print_notes
 from convert import p_to_f
 
@@ -18,6 +18,7 @@ class Application(tk.Frame):
         tk.Frame.__init__(self, master, bg=W_BG)
 
         self.notes = []
+        self.default_note_size = NOTE_SIZE
         self.note_bindings_on = True
         self.selected_note = None
         self.entry_to_param = dict()
@@ -312,8 +313,7 @@ class Application(tk.Frame):
 
 
     def left_click_canvas(self, event):
-        
-        note = Note(self.selected_voice['name'], event.x, event.y)
+        note = Note(self.selected_voice['name'], event.x, event.y, size=self.default_note_size)
 
         # no selected note? then set note params to specified
         if self.selected_note == None:
@@ -524,6 +524,13 @@ class Application(tk.Frame):
 
     def entry_keypress(self, event):
         self.turn_note_bindings_off()
+
+        if event.widget == self.ln_entry:
+            try:
+                print(event.widget.selection_get())
+                self.default_note_size = length_to_size(float(event.char))
+            except:
+                self.default_note_size = length_to_size(float(event.widget.get() + event.char))
 
     def validate_input(self, text):
         try:
