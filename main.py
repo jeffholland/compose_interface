@@ -4,7 +4,7 @@ import tkinter.messagebox as tk_msg
 from json import load as jsload
 
 def load_voices():
-    with open("voices.json", 'r') as f:
+    with open(VOICES_PATH, 'r') as f:
         return jsload(f)
     
 from constants import *

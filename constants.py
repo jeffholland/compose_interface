@@ -23,3 +23,8 @@ PITCH_RANGE = 100
 NOTE_SIZE = 10
 NOTE_HEIGHT = 5
 ROUND_DIGITS = 2
+
+# file paths
+
+VOICES_PATH = './json/voices.json'
+OUTPUT_PATH = './read/result.txt'
