@@ -161,9 +161,6 @@ class Application(tk.Frame):
         self.ln_entry.grid(row=20, column=8, pady=10)
         self.entry_to_param[str(self.ln_entry)] = 'ln'
 
-        default_length = (NOTE_SIZE / CANV_WIDTH) * TIME_LENGTH
-        self.ln_var.set(default_length)
-
         self.at_label = tk.Label(self, text='at')
         self.at_label.grid(row=20, column=9)
 
@@ -525,7 +522,7 @@ class Application(tk.Frame):
     def delete_selected_note(self):
         self.note_canvas.delete(self.selected_note.id)
         self.notes.remove(self.selected_note)
-        self.selected_note = None
+        self.deselect_all_notes()
 
     def clear_all(self):
         for note in self.notes:
