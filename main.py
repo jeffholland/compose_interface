@@ -292,6 +292,8 @@ class Application(tk.Frame):
                 widget.configure(bg=W_BG, fg=TEXT_COLOR)
             if 'entry' in str(widget):
                 widget.configure(width=4)
+                self.validate_command = self.register(self.validate_input)
+                widget.configure(validate='key', validatecommand=(self.validate_command, '%S'))
             if 'button' in str(widget):
                 widget.configure(highlightbackground=W_BG)
 
@@ -465,7 +467,7 @@ class Application(tk.Frame):
         for obj in self.grid_slaves():
             if isinstance(obj, tk.Entry):
                 obj.bind('<Button-1>', self.turn_note_bindings_off)
-                obj.bind('<KeyPress>', self.turn_note_bindings_off)
+                obj.bind('<KeyPress>', self.entry_keypress)
                 obj.bind('<FocusIn>', self.entry_widget_focus)
                 if obj in self.voice_entries:
                     obj.bind('<Key-Return>', self.update_selected_voice)
@@ -519,6 +521,19 @@ class Application(tk.Frame):
             # shift key held with up/down - tilt selected note
             elif event.state == 97 and (event.keysym == 'Up' or event.keysym == 'Down'):
                 self.tilt_selected_note(event.keysym)
+
+    def entry_keypress(self, event):
+        self.turn_note_bindings_off()
+
+    def validate_input(self, text):
+        try:
+            float(text)
+            return True
+        except:
+            if text == '.':
+                return True
+            else:
+                return False
 
     def delete_selected_note(self):
         self.note_canvas.delete(self.selected_note.id)
