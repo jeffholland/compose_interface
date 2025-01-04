@@ -417,17 +417,17 @@ class Application(tk.Frame):
                 self.selected_note = note
         self.note_canvas.itemconfig(id, fill='white')
 
-        self.st_var.set(str(self.selected_note.params['st']))
-        self.en_var.set(str(self.selected_note.params['en']))
-        self.ln_var.set(str(self.selected_note.params['ln']))
-        self.p_var.set(str(self.selected_note.params['p']))
-        self.p2_var.set(str(self.selected_note.params['p2']))
+        self.st_var.set(str(round(self.selected_note.params['st'], ROUND_DIGITS)))
+        self.en_var.set(str(round(self.selected_note.params['en'], ROUND_DIGITS)))
+        self.ln_var.set(str(round(self.selected_note.params['ln'], ROUND_DIGITS)))
+        self.p_var.set(str(round(self.selected_note.params['p'], ROUND_DIGITS)))
+        self.p2_var.set(str(round(self.selected_note.params['p2'], ROUND_DIGITS)))
 
         self.set_fq_vars()
 
-        self.at_var.set(str(self.selected_note.params['at']))
-        self.pk_var.set(str(self.selected_note.params['pk']))
-        self.dc_var.set(str(self.selected_note.params['dc']))
+        self.at_var.set(str(round(self.selected_note.params['at'], ROUND_DIGITS)))
+        self.pk_var.set(str(round(self.selected_note.params['pk'], ROUND_DIGITS)))
+        self.dc_var.set(str(round(self.selected_note.params['dc'], ROUND_DIGITS)))
 
         try:
             pm1 = self.selected_note.params[self.selected_param + '_1']
@@ -466,6 +466,7 @@ class Application(tk.Frame):
             if isinstance(obj, tk.Entry):
                 obj.bind('<Button-1>', self.turn_note_bindings_off)
                 obj.bind('<KeyPress>', self.turn_note_bindings_off)
+                obj.bind('<FocusIn>', self.entry_widget_focus)
                 if obj in self.voice_entries:
                     obj.bind('<Key-Return>', self.update_selected_voice)
                 else:
@@ -589,8 +590,11 @@ class Application(tk.Frame):
 
         fq1 = p_to_f(pitch, f1, f2, f3)
         fq2 = p_to_f(pitch2, f1, f2, f3)
-        self.fq_var.set(fq1)
-        self.fq2_var.set(fq2)
+        self.fq_var.set(round(fq1, ROUND_DIGITS))
+        self.fq2_var.set(round(fq2, ROUND_DIGITS))
+
+    def entry_widget_focus(self, event):
+        event.widget.select_range(0, tk.END)
 
 app = Application()
 app.master.title("Compose interface")
